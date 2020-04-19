@@ -8,7 +8,7 @@ import sh.ajo.linkeye.linkeye.model.user.User;
 @Repository
 public interface AuthorityRepository extends JpaRepository<Authority, Long> {
 
-    boolean existsByAuthorityAndUser(String authority, User user);
+    boolean existsByAuthorityLevelAndUser(String authorityLevel, User user);
     Authority getByUser(User user);
 
 }

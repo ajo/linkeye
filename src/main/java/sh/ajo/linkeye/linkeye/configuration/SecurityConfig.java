@@ -32,7 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder builder) throws Exception {
         builder.jdbcAuthentication()
                 .usersByUsernameQuery("select username, password, enabled from user where username=?")
-                .authoritiesByUsernameQuery("SELECT user_id, authority FROM authority\n" +
+                .authoritiesByUsernameQuery("SELECT user_id, authority_level FROM authority\n" +
                         "INNER JOIN user ON authority.user_id = user.id where username=?")
                 .passwordEncoder(passwordEncoder())
                 .dataSource(dataSource);

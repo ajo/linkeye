@@ -129,7 +129,7 @@
                                         <tr th:each="user : ${users}">
                                             <td th:text="${user.getUsername()}">Username</td>
                                             <td th:text="${user.getEnabled()}">test</td>
-                                            <td th:text="${authorityRepository.existsByAuthorityAndUser('USER_ADMIN', user) ? 'Admin' : 'Standard'}">True</td>
+                                            <td th:text="${authorityRepository.existsByAuthorityLevelAndUser('USER_ADMIN', user) ? 'Admin' : 'Standard'}">True</td>
                                             <td><a th:href="@{'/users/' + ${user.getId()}}" class="btn btn-success btn-sm" type="button">Manage</a></td>
                                         </tr>
                                     </tbody>
