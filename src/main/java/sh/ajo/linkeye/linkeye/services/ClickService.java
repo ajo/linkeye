@@ -4,8 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import sh.ajo.linkeye.linkeye.model.analytics.Click;
-import sh.ajo.linkeye.linkeye.model.web.Link;
+import sh.ajo.linkeye.linkeye.model.Click;
+import sh.ajo.linkeye.linkeye.model.Link;
 import sh.ajo.linkeye.linkeye.repositories.ClickRepository;
 
 import java.util.List;

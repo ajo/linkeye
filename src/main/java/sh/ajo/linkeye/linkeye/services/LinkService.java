@@ -5,8 +5,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import sh.ajo.linkeye.linkeye.model.user.User;
-import sh.ajo.linkeye.linkeye.model.web.Link;
+import sh.ajo.linkeye.linkeye.model.Link;
+import sh.ajo.linkeye.linkeye.model.User;
 import sh.ajo.linkeye.linkeye.repositories.LinkRepository;
 import sh.ajo.linkeye.linkeye.repositories.UserRepository;
 

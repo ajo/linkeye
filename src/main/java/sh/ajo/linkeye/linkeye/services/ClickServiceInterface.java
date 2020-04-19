@@ -1,7 +1,7 @@
 package sh.ajo.linkeye.linkeye.services;
 
-import sh.ajo.linkeye.linkeye.model.analytics.Click;
-import sh.ajo.linkeye.linkeye.model.web.Link;
+import sh.ajo.linkeye.linkeye.model.Click;
+import sh.ajo.linkeye.linkeye.model.Link;
 
 import java.util.List;
 

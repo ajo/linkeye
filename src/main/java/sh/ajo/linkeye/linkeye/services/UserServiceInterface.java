@@ -1,6 +1,6 @@
 package sh.ajo.linkeye.linkeye.services;
 
-import sh.ajo.linkeye.linkeye.model.user.User;
+import sh.ajo.linkeye.linkeye.model.User;
 
 import java.util.List;
 

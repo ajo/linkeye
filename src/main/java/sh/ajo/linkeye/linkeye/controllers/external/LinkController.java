@@ -1,10 +1,10 @@
-package sh.ajo.linkeye.linkeye.controllers.links;
+package sh.ajo.linkeye.linkeye.controllers.external;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import sh.ajo.linkeye.linkeye.model.analytics.Click;
-import sh.ajo.linkeye.linkeye.model.web.Link;
+import sh.ajo.linkeye.linkeye.model.Click;
+import sh.ajo.linkeye.linkeye.model.Link;
 import sh.ajo.linkeye.linkeye.repositories.ClickRepository;
 import sh.ajo.linkeye.linkeye.repositories.LinkRepository;
 
