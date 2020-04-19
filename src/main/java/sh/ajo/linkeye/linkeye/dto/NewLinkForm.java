@@ -1,6 +1,7 @@
-package sh.ajo.linkeye.linkeye.model.web;
+package sh.ajo.linkeye.linkeye.dto;
 
 import org.hibernate.validator.constraints.URL;
+import sh.ajo.linkeye.linkeye.model.Link;
 
 import javax.validation.constraints.NotEmpty;
 

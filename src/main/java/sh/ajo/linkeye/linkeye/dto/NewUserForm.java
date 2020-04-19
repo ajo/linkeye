@@ -1,36 +1,21 @@
-package sh.ajo.linkeye.linkeye.model.user;
+package sh.ajo.linkeye.linkeye.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 
-@Entity
-public class User {
+public class NewUserForm {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @NotNull
+    @NotEmpty
     private String username;
 
     @JsonIgnore
+    @NotEmpty
     private String password;
 
-    @NotNull
-    private boolean enabled = true;
+    private boolean enabled;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private boolean admin;
 
     public String getUsername() {
         return username;
@@ -48,11 +33,20 @@ public class User {
         this.password = password;
     }
 
-    public boolean getEnabled() {
+    public boolean isEnabled() {
         return enabled;
     }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
 }
+

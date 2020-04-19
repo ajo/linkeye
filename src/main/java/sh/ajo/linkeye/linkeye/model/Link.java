@@ -1,8 +1,7 @@
-package sh.ajo.linkeye.linkeye.model.web;
+package sh.ajo.linkeye.linkeye.model;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import sh.ajo.linkeye.linkeye.model.user.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

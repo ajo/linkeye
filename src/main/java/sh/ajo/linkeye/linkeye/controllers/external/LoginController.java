@@ -1,4 +1,4 @@
-package sh.ajo.linkeye.linkeye.controllers;
+package sh.ajo.linkeye.linkeye.controllers.external;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package sh.ajo.linkeye.linkeye.model.user;
+package sh.ajo.linkeye.linkeye.model;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;

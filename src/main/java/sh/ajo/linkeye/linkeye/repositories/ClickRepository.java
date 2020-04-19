@@ -6,9 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import sh.ajo.linkeye.linkeye.model.analytics.Click;
-import sh.ajo.linkeye.linkeye.model.user.User;
-import sh.ajo.linkeye.linkeye.model.web.Link;
+import sh.ajo.linkeye.linkeye.model.Click;
+import sh.ajo.linkeye.linkeye.model.Link;
+import sh.ajo.linkeye.linkeye.model.User;
 
 @Repository
 public interface ClickRepository extends JpaRepository<Click, Long> {

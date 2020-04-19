@@ -1,9 +1,8 @@
-package sh.ajo.linkeye.linkeye.model.analytics;
+package sh.ajo.linkeye.linkeye.model;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import sh.ajo.linkeye.linkeye.model.web.Link;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
