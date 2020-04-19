@@ -6,7 +6,7 @@ import sh.ajo.linkeye.linkeye.model.User;
 
 import javax.validation.constraints.NotEmpty;
 
-public class EditUserForm {
+public class UserDTO {
 
     @NotEmpty
     private String username;
@@ -18,7 +18,7 @@ public class EditUserForm {
 
     private boolean admin;
 
-    public EditUserForm(User user, Authority authority) {
+    public UserDTO(User user, Authority authority) {
         this.username = user.getUsername();
         this.enabled = user.getEnabled();
         this.password = user.getPassword();
@@ -33,7 +33,7 @@ public class EditUserForm {
 
     }
 
-    public EditUserForm() {
+    public UserDTO() {
     }
 
     public String getUsername() {

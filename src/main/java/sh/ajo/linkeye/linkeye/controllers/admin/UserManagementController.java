@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import sh.ajo.linkeye.linkeye.dto.EditUserForm;
-import sh.ajo.linkeye.linkeye.dto.NewUserForm;
+import sh.ajo.linkeye.linkeye.LinkeyeApplication;
+import sh.ajo.linkeye.linkeye.dto.UserDTO;
 import sh.ajo.linkeye.linkeye.model.Authority;
 import sh.ajo.linkeye.linkeye.model.User;
 import sh.ajo.linkeye.linkeye.repositories.AuthorityRepository;
@@ -23,7 +23,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
-import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 
 @Controller
 public class UserManagementController {
@@ -45,7 +44,7 @@ public class UserManagementController {
     public String getAllUsers(Model model, @RequestParam(required = false, defaultValue="1") @Min(1) int page, @RequestParam(required = false, defaultValue="10") @Min(10) @Max(100) int usersShown, Authentication authentication) {
 
         model.addAttribute("users", userService.findPaginated(page - 1, usersShown));
-        model.addAttribute("newUserForm", new NewUserForm());
+        model.addAttribute("userDTO", new UserDTO());
         model.addAttribute("totalUsersAvailable", userRepository.count());
         model.addAttribute("authorityRepository", authorityRepository);
         model.addAttribute("lastPage", (int) Math.ceil(userRepository.count() / (double) usersShown));
@@ -56,18 +55,18 @@ public class UserManagementController {
 
     @PreAuthorize("hasAuthority('USER_ADMIN')")
     @PostMapping("/users")
-    public String createUser(@Valid NewUserForm newUserForm, BindingResult bindingResult, @RequestParam(required = false, defaultValue="false")  boolean isAdmin){
+    public String createUser(@Valid UserDTO userDTO, BindingResult bindingResult, @RequestParam(required = false, defaultValue="false")  boolean isAdmin){
 
         // Validate the form
         if (bindingResult.hasErrors()) {
-            LOGGER.debug("User Creation Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
+            LinkeyeApplication.LOGGER.debug("User Creation Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
             return "redirect:/users?error";
         }
 
         User newUser = new User();
-        newUser.setUsername(newUserForm.getUsername());
-        newUser.setEnabled(newUserForm.isEnabled());
-        newUser.setPassword(passwordEncoder.encode(newUserForm.getPassword()));
+        newUser.setUsername(userDTO.getUsername());
+        newUser.setEnabled(userDTO.isEnabled());
+        newUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
         try {
             userRepository.saveAndFlush(newUser);
@@ -78,7 +77,7 @@ public class UserManagementController {
         Authority authority = new Authority();
         authority.setUser(userRepository.getOneByUsername(newUser.getUsername()));
 
-        if (newUserForm.isAdmin()){
+        if (userDTO.isAdmin()){
             authority.setAuthorityLevel("USER_ADMIN");
         } else {
             authority.setAuthorityLevel("USER_STANDARD");
@@ -100,7 +99,7 @@ public class UserManagementController {
 
             // Requester owns
             model.addAttribute("user", user);
-            model.addAttribute("editUserForm", new EditUserForm(user, authority));
+            model.addAttribute("userDto", new UserDTO(user, authority));
 
             return "userdetails";
         }
@@ -111,11 +110,11 @@ public class UserManagementController {
 
     @PreAuthorize("hasAuthority('USER_ADMIN')")
     @PostMapping("/users/{userId}")
-    public String updateUser(@Valid EditUserForm editUserForm, BindingResult bindingResult, @PathVariable long userId) {
+    public String updateUser(@Valid UserDTO userDTO, BindingResult bindingResult, @PathVariable long userId) {
 
         // Validate the form
         if (bindingResult.hasErrors()) {
-            LOGGER.debug("User Modification Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
+            LinkeyeApplication.LOGGER.debug("User Modification Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
             return "redirect:/users/" + userId + "?error";
         }
 
@@ -123,24 +122,24 @@ public class UserManagementController {
 
             User newUser = userRepository.getOne(userId);
 
-            newUser.setUsername(editUserForm.getUsername());
-            newUser.setEnabled(editUserForm.isEnabled());
+            newUser.setUsername(userDTO.getUsername());
+            newUser.setEnabled(userDTO.isEnabled());
 
             // If the password is blank, do not update.
-            if(!editUserForm.getPassword().isBlank()){
-                newUser.setPassword(passwordEncoder.encode(editUserForm.getPassword()));
+            if(!userDTO.getPassword().isBlank()){
+                newUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
             }
 
             try{
                 userRepository.saveAndFlush(newUser);
             } catch (Exception e){
-                    LOGGER.debug("User Modification Failed:\n " + e);
+                LinkeyeApplication.LOGGER.debug("User Modification Failed:\n " + e);
                 return "redirect:/users?error";
             }
 
             Authority authority = authorityRepository.getByUser(newUser);
 
-            if (editUserForm.isAdmin()){
+            if (userDTO.isAdmin()){
                 authority.setAuthorityLevel("USER_ADMIN");
             } else {
                 authority.setAuthorityLevel("USER_STANDARD");

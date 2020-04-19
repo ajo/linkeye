@@ -88,7 +88,7 @@
                             <div class="row">
                                 <div class="col">
                                     <h3>Details</h3>
-                                    <form th:action="@{'/users/' + ${user.getId()}}" method="post"  th:object="${editUserForm}">
+                                    <form th:action="@{'/users/' + ${user.getId()}}" method="post"  th:object="${userDto}">
                                         <div class="col">
                                             <div class="form-row">
                                                 <div class="col">

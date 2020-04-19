@@ -12,7 +12,7 @@
 <div class="modal fade" role="dialog" tabindex="-1" id="newLink">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form th:action="@{/links}" method="post" th:object="${newLinkForm}">
+            <form th:action="@{/links}" method="post" th:object="${linkDTO}">
             <div class="modal-header">
                 <h4 class="modal-title">New Link</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
@@ -24,7 +24,7 @@
                                 <div class="form-group"><label for="name">Name</label><input th:field="*{name}" class="form-control" type="text" placeholder="New Link" required="" id="name"></div>
                             </div>
                             <div class="col">
-                                <div class="form-group"><label for="path">Path</label><input  th:field="*{sourcePath}"class="form-control" type="text" placeholder="link" required="" id="path"></div>
+                                <div class="form-group"><label for="path">Path</label><input  th:field="*{path}"class="form-control" type="text" placeholder="link" required="" id="path"></div>
                             </div>
                         </div>
                         <div class="form-row">

@@ -5,7 +5,7 @@ import sh.ajo.linkeye.linkeye.model.Link;
 
 import javax.validation.constraints.NotEmpty;
 
-public class NewLinkForm {
+public class LinkDTO {
 
     @NotEmpty
     private String name;
@@ -18,19 +18,15 @@ public class NewLinkForm {
 
     private boolean active;
 
-    public NewLinkForm(Link link) {
-
-        this.name = link.getName();
-        this.path = link.getSourcePath();
-        this.destination = link.getDestination();
-        this.active = link.isActive();
-
+    public LinkDTO() {
     }
 
-    public NewLinkForm() {
-
+    public LinkDTO(Link link) {
+        this.setName(link.getName());
+        this.setPath(link.getSourcePath());
+        this.setDestination(link.getDestination());
+        this.setActive(link.isActive());
     }
-
 
     public String getName() {
         return name;

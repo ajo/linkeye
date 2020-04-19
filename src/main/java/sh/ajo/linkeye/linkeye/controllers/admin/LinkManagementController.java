@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import sh.ajo.linkeye.linkeye.LinkeyeApplication;
+import sh.ajo.linkeye.linkeye.dto.LinkDTO;
 import sh.ajo.linkeye.linkeye.model.Link;
 import sh.ajo.linkeye.linkeye.model.User;
 import sh.ajo.linkeye.linkeye.repositories.ClickRepository;
@@ -21,8 +23,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.Date;
-
-import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 
 @Controller
 public class LinkManagementController {
@@ -47,7 +47,7 @@ public class LinkManagementController {
         User requester = userRepository.getOneByUsername(authentication.getName());
 
         model.addAttribute("links", linkService.findPaginated(page - 1, linksShown));
-        model.addAttribute("newLinkForm", new Link());
+        model.addAttribute("linkDTO", new LinkDTO());
         model.addAttribute("totalLinksAvailable", linkRepository.countByOwner(requester));
         model.addAttribute("clickRepository", clickRepository);
         model.addAttribute("lastPage", (int) Math.ceil(linkRepository.countByOwner(requester) / (double) linksShown));
@@ -57,28 +57,28 @@ public class LinkManagementController {
     }
 
     @PostMapping("/links")
-    public String createLink(@Valid Link newLinkForm, BindingResult bindingResult, Authentication authentication){
+    public String createLink(@Valid LinkDTO linkDTO, BindingResult bindingResult, Authentication authentication){
 
         // Validate the form
         if (bindingResult.hasErrors()) {
-            LOGGER.debug("Link Creation Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
+            LinkeyeApplication.LOGGER.debug("Link Creation Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
             return "redirect:/links?error";
         }
 
         User requester = userRepository.getOneByUsername(authentication.getName());
 
         Link newLink = new Link();
-        newLink.setName(newLinkForm.getName());
-        newLink.setDestination(newLinkForm.getDestination());
-        newLink.setSourcePath(newLinkForm.getSourcePath());
+        newLink.setName(linkDTO.getName());
+        newLink.setDestination(linkDTO.getDestination());
+        newLink.setSourcePath(linkDTO.getPath());
         newLink.setOwner(requester);
         newLink.setCreated(new Date(System.currentTimeMillis()));
-        newLink.setActive(newLinkForm.isActive());
+        newLink.setActive(linkDTO.isActive());
 
         try {
             linkRepository.save(newLink);
         } catch (Exception e){
-            LOGGER.debug("Link creation failed:\n " + e);
+            LinkeyeApplication.LOGGER.debug("Link creation failed:\n " + e);
             return "redirect:/links?error";
         }
 
@@ -95,7 +95,7 @@ public class LinkManagementController {
 
             // Requester owns
             model.addAttribute("link", link);
-            model.addAttribute("newLinkForm", link);
+            model.addAttribute("linkDTO", new LinkDTO(link));
             model.addAttribute("clicks", clickService.findPaginated(page - 1, linksShown, link));
             model.addAttribute("totalClicksAvailable", clickRepository.countByLink(link));
             model.addAttribute("clickRepository", clickRepository);
@@ -112,7 +112,7 @@ public class LinkManagementController {
     }
 
     @PostMapping("/links/{linkId}")
-    public String createLink(@Valid Link newLinkForm, BindingResult bindingResult, Authentication authentication, @PathVariable long linkId) {
+    public String createLink(@Valid LinkDTO linkDTO, BindingResult bindingResult, Authentication authentication, @PathVariable long linkId) {
 
         // Validate the form
         if (bindingResult.hasErrors()) {
@@ -125,18 +125,18 @@ public class LinkManagementController {
         // Validate authorization
         if (link.getOwner() == requester){
 
-            link.setName(newLinkForm.getName());
-            link.setDestination(newLinkForm.getDestination());
-            link.setSourcePath(newLinkForm.getSourcePath());
+            link.setName(linkDTO.getName());
+            link.setDestination(linkDTO.getDestination());
+            link.setSourcePath(linkDTO.getPath());
             link.setOwner(requester);
-            link.setActive(newLinkForm.isActive());
+            link.setActive(linkDTO.isActive());
 
         try {
             linkRepository.save(link);
         } catch (Exception e){
             if (e instanceof ConstraintViolationException) {
                 // Here you're sure you have a ConstraintViolationException, you can handle it
-                LOGGER.debug("User Modification Failed:\n " + e);
+                LinkeyeApplication.LOGGER.debug("User Modification Failed:\n " + e);
             }
             return "redirect:/links/" + linkId + "?error";
         }
