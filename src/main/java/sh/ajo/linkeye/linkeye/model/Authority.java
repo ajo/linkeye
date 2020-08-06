@@ -2,28 +2,25 @@ package sh.ajo.linkeye.linkeye.model;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
-public class Authority {
+public class Authority implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @ManyToOne()
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private User user;
-
     private String authorityLevel;
 
-    public User getUser() {
-        return user;
+    public Authority(String authorityLevel) {
+        this.authorityLevel = authorityLevel;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public Authority() {
     }
 
     public String getAuthorityLevel() {
@@ -32,5 +29,10 @@ public class Authority {
 
     public void setAuthorityLevel(String authority) {
         this.authorityLevel = authority;
+    }
+
+    @Override
+    public String getAuthority() {
+        return authorityLevel;
     }
 }

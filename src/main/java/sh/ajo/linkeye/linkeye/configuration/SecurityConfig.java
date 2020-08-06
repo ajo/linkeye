@@ -2,6 +2,7 @@ package sh.ajo.linkeye.linkeye.configuration;
 
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,6 +16,7 @@ import javax.sql.DataSource;
 
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableWebSecurity
+@Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
    private final DataSource dataSource;
@@ -32,8 +34,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder builder) throws Exception {
         builder.jdbcAuthentication()
                 .usersByUsernameQuery("select username, password, enabled from user where username=?")
-                .authoritiesByUsernameQuery("SELECT user_id, authority_level FROM authority\n" +
-                        "INNER JOIN user ON authority.user_id = user.id where username=?")
+                .authoritiesByUsernameQuery("SELECT username, authority.authority_level FROM authority\n" +
+                        "INNER JOIN user_authorities ON user_authorities.authority_id = authority.id\n" +
+                        "INNER JOIN user ON user_authorities.user_id = user.id\n" +
+                        "WHERE username=?")
                 .passwordEncoder(passwordEncoder())
                 .dataSource(dataSource);
     }

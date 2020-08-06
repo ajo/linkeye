@@ -16,8 +16,8 @@ import sh.ajo.linkeye.linkeye.model.User;
 import sh.ajo.linkeye.linkeye.repositories.ClickRepository;
 import sh.ajo.linkeye.linkeye.repositories.LinkRepository;
 import sh.ajo.linkeye.linkeye.repositories.UserRepository;
-import sh.ajo.linkeye.linkeye.services.ClickService;
-import sh.ajo.linkeye.linkeye.services.LinkService;
+import sh.ajo.linkeye.linkeye.services.mysql.ClickServiceImpl;
+import sh.ajo.linkeye.linkeye.services.mysql.LinkServiceImpl;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -27,15 +27,15 @@ import java.util.Date;
 @Controller
 public class LinkManagementController {
 
-    private final LinkService linkService;
-    private final ClickService clickService;
+    private final LinkServiceImpl linkServiceImpl;
+    private final ClickServiceImpl clickServiceImpl;
     private final LinkRepository linkRepository;
     private final ClickRepository clickRepository;
     private final UserRepository userRepository;
 
-    public LinkManagementController(LinkService linkService, ClickService clickService, LinkRepository linkRepository, ClickRepository clickRepository, UserRepository userRepository) {
-        this.linkService = linkService;
-        this.clickService = clickService;
+    public LinkManagementController(LinkServiceImpl linkServiceImpl, ClickServiceImpl clickServiceImpl, LinkRepository linkRepository, ClickRepository clickRepository, UserRepository userRepository) {
+        this.linkServiceImpl = linkServiceImpl;
+        this.clickServiceImpl = clickServiceImpl;
         this.linkRepository = linkRepository;
         this.clickRepository = clickRepository;
         this.userRepository = userRepository;
@@ -46,7 +46,7 @@ public class LinkManagementController {
 
         User requester = userRepository.getOneByUsername(authentication.getName());
 
-        model.addAttribute("links", linkService.findPaginated(page - 1, linksShown));
+        model.addAttribute("links", linkServiceImpl.findPaginated(page - 1, linksShown));
         model.addAttribute("linkDTO", new LinkDTO());
         model.addAttribute("totalLinksAvailable", linkRepository.countByOwner(requester));
         model.addAttribute("clickRepository", clickRepository);
@@ -96,7 +96,7 @@ public class LinkManagementController {
             // Requester owns
             model.addAttribute("link", link);
             model.addAttribute("linkDTO", new LinkDTO(link));
-            model.addAttribute("clicks", clickService.findPaginated(page - 1, linksShown, link));
+            model.addAttribute("clicks", clickServiceImpl.findPaginated(page - 1, linksShown, link));
             model.addAttribute("totalClicksAvailable", clickRepository.countByLink(link));
             model.addAttribute("clickRepository", clickRepository);
             model.addAttribute("lastPage", (int) Math.ceil(clickRepository.countByLink(link) / (double) linksShown));

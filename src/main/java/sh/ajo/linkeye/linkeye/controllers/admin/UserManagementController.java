@@ -14,9 +14,8 @@ import sh.ajo.linkeye.linkeye.LinkeyeApplication;
 import sh.ajo.linkeye.linkeye.dto.UserDTO;
 import sh.ajo.linkeye.linkeye.model.Authority;
 import sh.ajo.linkeye.linkeye.model.User;
-import sh.ajo.linkeye.linkeye.repositories.AuthorityRepository;
 import sh.ajo.linkeye.linkeye.repositories.UserRepository;
-import sh.ajo.linkeye.linkeye.services.UserService;
+import sh.ajo.linkeye.linkeye.services.mysql.UserServiceImpl;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -27,13 +26,13 @@ import javax.validation.constraints.Min;
 @Controller
 public class UserManagementController {
 
-    private final UserService userService;
+    /*private final UserServiceImpl userServiceImpl;
     private final UserRepository userRepository;
     private final AuthorityRepository authorityRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserManagementController(UserService userService, UserRepository userRepository, AuthorityRepository authorityRepository, PasswordEncoder passwordEncoder) {
-        this.userService = userService;
+    public UserManagementController(UserServiceImpl userServiceImpl, UserRepository userRepository, AuthorityRepository authorityRepository, PasswordEncoder passwordEncoder) {
+        this.userServiceImpl = userServiceImpl;
         this.userRepository = userRepository;
         this.authorityRepository = authorityRepository;
         this.passwordEncoder = passwordEncoder;
@@ -43,7 +42,7 @@ public class UserManagementController {
     @GetMapping("/users")
     public String getAllUsers(Model model, @RequestParam(required = false, defaultValue="1") @Min(1) int page, @RequestParam(required = false, defaultValue="10") @Min(10) @Max(100) int usersShown, Authentication authentication) {
 
-        model.addAttribute("users", userService.findPaginated(page - 1, usersShown));
+        model.addAttribute("users", userServiceImpl.findPaginated(page - 1, usersShown));
         model.addAttribute("userDTO", new UserDTO());
         model.addAttribute("totalUsersAvailable", userRepository.count());
         model.addAttribute("authorityRepository", authorityRepository);
@@ -75,7 +74,7 @@ public class UserManagementController {
         }
 
         Authority authority = new Authority();
-        authority.setUser(userRepository.getOneByUsername(newUser.getUsername()));
+        //authority.setUser(userRepository.getOneByUsername(newUser.getUsername()));
 
         if (userDTO.isAdmin()){
             authority.setAuthorityLevel("USER_ADMIN");
@@ -159,7 +158,7 @@ public class UserManagementController {
         userRepository.deleteById(userId);
 
         return "redirect:/users";
-    }
+    }*/
 
 
 }

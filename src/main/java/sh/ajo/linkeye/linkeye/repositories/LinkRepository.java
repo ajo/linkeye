@@ -2,6 +2,7 @@ package sh.ajo.linkeye.linkeye.repositories;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -10,7 +11,7 @@ import sh.ajo.linkeye.linkeye.model.Link;
 import sh.ajo.linkeye.linkeye.model.User;
 
 @Repository
-public interface LinkRepository extends PagingAndSortingRepository<Link, Long> {
+public interface LinkRepository extends JpaRepository<Link, Long> {
 
     // Newest
     Link findFirstByOwnerOrderByCreatedDesc(User user);

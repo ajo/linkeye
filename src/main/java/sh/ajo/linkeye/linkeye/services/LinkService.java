@@ -1,37 +1,28 @@
 package sh.ajo.linkeye.linkeye.services;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.query.Param;
 import sh.ajo.linkeye.linkeye.model.Link;
 import sh.ajo.linkeye.linkeye.model.User;
-import sh.ajo.linkeye.linkeye.repositories.LinkRepository;
-import sh.ajo.linkeye.linkeye.repositories.UserRepository;
 
 import java.util.List;
+@NoRepositoryBean
+public interface LinkService extends JpaService<Link, Long>{
 
-@Service
-public class LinkService implements LinkServiceInterface {
+    List<Link> findPaginated(int pageNo, int pageSize);
 
-    private final LinkRepository linkRepository;
+    // Newest
+    Link findFirstByOwnerOrderByCreatedDesc(User user);
 
-    private final UserRepository userRepository;
+    Link findLinkBySourcePath(String sourcePath);
+    Link getLinkById(Long linkId);
 
-    public LinkService(LinkRepository linkRepository, UserRepository userRepository) {
-        this.linkRepository = linkRepository;
-        this.userRepository = userRepository;
-    }
+    Page<Link> findAllByOwner(Pageable paging, User user);
 
-    @Override
-    public List<Link> findPaginated(int pageNo, int pageSize) {
+    long countByOwner(User user);
 
-        User requester = userRepository.getOneByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
-
-        Pageable paging = PageRequest.of(pageNo, pageSize);
-        Page<Link> pagedResult = linkRepository.findAllByOwner(paging, requester);
-
-        return pagedResult.toList();
-    }
+    Link getTopLinkByClicksForOwner(User owner);
 }
