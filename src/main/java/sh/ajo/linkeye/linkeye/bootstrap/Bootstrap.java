@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import sh.ajo.linkeye.linkeye.LinkeyeApplication;
 import sh.ajo.linkeye.linkeye.model.Authority;
 import sh.ajo.linkeye.linkeye.model.User;
-import sh.ajo.linkeye.linkeye.repositories.AuthorityRepository;
 import sh.ajo.linkeye.linkeye.services.AuthorityService;
 import sh.ajo.linkeye.linkeye.services.UserService;
 
@@ -18,10 +17,10 @@ import java.util.Arrays;
 @Component
 public class Bootstrap implements CommandLineRunner {
 
+    static final Logger LOGGER = LoggerFactory.getLogger(LinkeyeApplication.class);
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final AuthorityService authorityService;
-    static final Logger LOGGER = LoggerFactory.getLogger(LinkeyeApplication.class);
 
     public Bootstrap(UserService userService, PasswordEncoder passwordEncoder, AuthorityService authorityService) {
         this.userService = userService;
@@ -34,10 +33,10 @@ public class Bootstrap implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        if (userService.count() == 0){
+        if (userService.count() == 0) {
 
-            Authority standardLevel = new Authority("ROLE_USER");
-            authorityService.saveAndFlush(standardLevel);
+            Authority userLevel = new Authority("ROLE_USER");
+            authorityService.saveAndFlush(userLevel);
 
             Authority adminLevel = new Authority("ROLE_ADMIN");
             authorityService.saveAndFlush(adminLevel);
@@ -46,7 +45,7 @@ public class Bootstrap implements CommandLineRunner {
             user.setUsername("linkeye");
             user.setPassword(passwordEncoder.encode("linkeye"));
             user.setEnabled(true);
-            user.setAuthorities(new ArrayList<>(Arrays.asList(standardLevel, adminLevel)));
+            user.setAuthorities(new ArrayList<>(Arrays.asList(adminLevel)));
 
 
             userService.saveAndFlush(user);

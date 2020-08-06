@@ -20,7 +20,7 @@ public class ClickServiceImpl implements ClickService {
         this.clickRepository = clickRepository;
     }
 
-    //@Override
+    @Override
     public List<Click> findPaginated(int pageNo, int pageSize, Link link) {
 
         Pageable paging = PageRequest.of(pageNo, pageSize);

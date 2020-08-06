@@ -2,15 +2,14 @@ package sh.ajo.linkeye.linkeye.services;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
-import org.springframework.data.repository.query.Param;
 import sh.ajo.linkeye.linkeye.model.Link;
 import sh.ajo.linkeye.linkeye.model.User;
 
 import java.util.List;
+
 @NoRepositoryBean
-public interface LinkService extends JpaService<Link, Long>{
+public interface LinkService extends JpaService<Link, Long> {
 
     List<Link> findPaginated(int pageNo, int pageSize);
 
@@ -18,6 +17,7 @@ public interface LinkService extends JpaService<Link, Long>{
     Link findFirstByOwnerOrderByCreatedDesc(User user);
 
     Link findLinkBySourcePath(String sourcePath);
+
     Link getLinkById(Long linkId);
 
     Page<Link> findAllByOwner(Pageable paging, User user);

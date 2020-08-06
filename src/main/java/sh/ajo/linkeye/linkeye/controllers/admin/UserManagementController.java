@@ -14,47 +14,46 @@ import sh.ajo.linkeye.linkeye.LinkeyeApplication;
 import sh.ajo.linkeye.linkeye.dto.UserDTO;
 import sh.ajo.linkeye.linkeye.model.Authority;
 import sh.ajo.linkeye.linkeye.model.User;
-import sh.ajo.linkeye.linkeye.repositories.UserRepository;
-import sh.ajo.linkeye.linkeye.services.mysql.UserServiceImpl;
+import sh.ajo.linkeye.linkeye.services.AuthorityService;
+import sh.ajo.linkeye.linkeye.services.UserService;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 
 @Controller
 public class UserManagementController {
 
-    /*private final UserServiceImpl userServiceImpl;
-    private final UserRepository userRepository;
-    private final AuthorityRepository authorityRepository;
+    private final UserService userService;
+    private final AuthorityService authorityService;
     private final PasswordEncoder passwordEncoder;
 
-    public UserManagementController(UserServiceImpl userServiceImpl, UserRepository userRepository, AuthorityRepository authorityRepository, PasswordEncoder passwordEncoder) {
-        this.userServiceImpl = userServiceImpl;
-        this.userRepository = userRepository;
-        this.authorityRepository = authorityRepository;
+    public UserManagementController(UserService userService, AuthorityService authorityService, PasswordEncoder passwordEncoder) {
+        this.userService = userService;
+        this.authorityService = authorityService;
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PreAuthorize("hasAuthority('USER_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/users")
-    public String getAllUsers(Model model, @RequestParam(required = false, defaultValue="1") @Min(1) int page, @RequestParam(required = false, defaultValue="10") @Min(10) @Max(100) int usersShown, Authentication authentication) {
+    public String getAllUsers(Model model, @RequestParam(required = false, defaultValue = "1") @Min(1) int page, @RequestParam(required = false, defaultValue = "10") @Min(10) @Max(100) int usersShown, Authentication authentication) {
 
-        model.addAttribute("users", userServiceImpl.findPaginated(page - 1, usersShown));
+        model.addAttribute("users", userService.findPaginated(page - 1, usersShown));
         model.addAttribute("userDTO", new UserDTO());
-        model.addAttribute("totalUsersAvailable", userRepository.count());
-        model.addAttribute("authorityRepository", authorityRepository);
-        model.addAttribute("lastPage", (int) Math.ceil(userRepository.count() / (double) usersShown));
+        model.addAttribute("totalUsersAvailable", userService.count());
+        model.addAttribute("lastPage", (int) Math.ceil(userService.count() / (double) usersShown));
         model.addAttribute("page", page);
         model.addAttribute("usersShown", usersShown);
         return "users";
     }
 
-    @PreAuthorize("hasAuthority('USER_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/users")
-    public String createUser(@Valid UserDTO userDTO, BindingResult bindingResult, @RequestParam(required = false, defaultValue="false")  boolean isAdmin){
+    public String createUser(@Valid UserDTO userDTO, BindingResult bindingResult, @RequestParam(required = false, defaultValue = "false") boolean isAdmin) {
 
         // Validate the form
         if (bindingResult.hasErrors()) {
@@ -67,38 +66,35 @@ public class UserManagementController {
         newUser.setEnabled(userDTO.isEnabled());
         newUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
+        Authority authority;
+
+        if (userDTO.isAdmin()) {
+            authority = authorityService.getByAuthority("ROLE_ADMIN");
+        } else {
+            authority = authorityService.getByAuthority("ROLE_USER");
+        }
+
+        newUser.setAuthorities(new ArrayList<>(Arrays.asList(authority)));
+
         try {
-            userRepository.saveAndFlush(newUser);
-        } catch (ConstraintViolationException e){
+            userService.saveAndFlush(newUser);
+        } catch (ConstraintViolationException e) {
             return "redirect:/users?error";
         }
-
-        Authority authority = new Authority();
-        //authority.setUser(userRepository.getOneByUsername(newUser.getUsername()));
-
-        if (userDTO.isAdmin()){
-            authority.setAuthorityLevel("USER_ADMIN");
-        } else {
-            authority.setAuthorityLevel("USER_STANDARD");
-        }
-
-
-        authorityRepository.saveAndFlush(authority);
 
         return "redirect:/users";
     }
 
-    @PreAuthorize("hasAuthority('USER_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/users/{userId}")
     public String getUser(Model model, @PathVariable Long userId) {
 
-        if (userRepository.existsById(userId)) {
-            User user = userRepository.getOne(userId);
-            Authority authority = authorityRepository.getByUser(user);
+        if (userService.existsById(userId)) {
+            User user = userService.getOne(userId);
 
             // Requester owns
             model.addAttribute("user", user);
-            model.addAttribute("userDto", new UserDTO(user, authority));
+            model.addAttribute("userDto", new UserDTO(user));
 
             return "userdetails";
         }
@@ -107,7 +103,7 @@ public class UserManagementController {
 
     }
 
-    @PreAuthorize("hasAuthority('USER_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/users/{userId}")
     public String updateUser(@Valid UserDTO userDTO, BindingResult bindingResult, @PathVariable long userId) {
 
@@ -117,48 +113,46 @@ public class UserManagementController {
             return "redirect:/users/" + userId + "?error";
         }
 
-        if (userRepository.existsById(userId)){
+        if (userService.existsById(userId)) {
 
-            User newUser = userRepository.getOne(userId);
-
+            User newUser = userService.getOneByUsername(userDTO.getUsername());
             newUser.setUsername(userDTO.getUsername());
             newUser.setEnabled(userDTO.isEnabled());
 
             // If the password is blank, do not update.
-            if(!userDTO.getPassword().isBlank()){
+            if (!userDTO.getPassword().isBlank()) {
                 newUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
             }
 
-            try{
-                userRepository.saveAndFlush(newUser);
-            } catch (Exception e){
+            Authority authority;
+
+            if (userDTO.isAdmin()) {
+                authority = authorityService.getByAuthority("ROLE_ADMIN");
+            } else {
+                authority = authorityService.getByAuthority("ROLE_USER");
+            }
+
+            newUser.setAuthorities(new ArrayList<>(Arrays.asList(authority)));
+
+            try {
+                userService.saveAndFlush(newUser);
+            } catch (Exception e) {
                 LinkeyeApplication.LOGGER.debug("User Modification Failed:\n " + e);
                 return "redirect:/users?error";
             }
-
-            Authority authority = authorityRepository.getByUser(newUser);
-
-            if (userDTO.isAdmin()){
-                authority.setAuthorityLevel("USER_ADMIN");
-            } else {
-                authority.setAuthorityLevel("USER_STANDARD");
-            }
-
-
-            authorityRepository.saveAndFlush(authority);
         }
 
         return "redirect:/users/" + userId;
     }
 
-    @PreAuthorize("hasAuthority('USER_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/users/{userId}/delete")
-    public String deleteUser(@PathVariable long userId){
+    public String deleteUser(@PathVariable long userId) {
 
-        userRepository.deleteById(userId);
+        userService.deleteById(userId);
 
         return "redirect:/users";
-    }*/
+    }
 
 
 }

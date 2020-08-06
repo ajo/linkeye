@@ -16,13 +16,14 @@ public interface ClickRepository extends JpaRepository<Click, Long> {
     Page<Click> findAllByLink(Pageable paging, Link link);
 
     long countClicksByLinkId(Long linkId);
+
     long countByLink(Link link);
 
     @Query(value =
             "SELECT COUNT(*) " +
-            "FROM click " +
-            "INNER JOIN link " +
-            "ON click.link_id = link.id " +
-            "WHERE link.owner_id = :#{#owner.id} AND click.date >= NOW() - INTERVAL :#{#daysAgo} DAY", nativeQuery = true)
+                    "FROM click " +
+                    "INNER JOIN link " +
+                    "ON click.link_id = link.id " +
+                    "WHERE link.owner_id = :#{#owner.id} AND click.date >= NOW() - INTERVAL :#{#daysAgo} DAY", nativeQuery = true)
     long countTotalClicksForUserSinceDate(@Param("owner") User user, @Param("daysAgo") int daysAgo);
 }

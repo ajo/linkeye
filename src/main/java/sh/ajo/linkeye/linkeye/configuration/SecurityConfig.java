@@ -19,7 +19,7 @@ import javax.sql.DataSource;
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-   private final DataSource dataSource;
+    private final DataSource dataSource;
 
     public SecurityConfig(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -34,7 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder builder) throws Exception {
         builder.jdbcAuthentication()
                 .usersByUsernameQuery("select username, password, enabled from user where username=?")
-                .authoritiesByUsernameQuery("SELECT username, authority.authority_level FROM authority\n" +
+                .authoritiesByUsernameQuery("SELECT username, authority.authority FROM authority\n" +
                         "INNER JOIN user_authorities ON user_authorities.authority_id = authority.id\n" +
                         "INNER JOIN user ON user_authorities.user_id = user.id\n" +
                         "WHERE username=?")

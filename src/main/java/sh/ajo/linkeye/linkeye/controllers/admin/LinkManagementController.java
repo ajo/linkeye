@@ -13,11 +13,9 @@ import sh.ajo.linkeye.linkeye.LinkeyeApplication;
 import sh.ajo.linkeye.linkeye.dto.LinkDTO;
 import sh.ajo.linkeye.linkeye.model.Link;
 import sh.ajo.linkeye.linkeye.model.User;
-import sh.ajo.linkeye.linkeye.repositories.ClickRepository;
-import sh.ajo.linkeye.linkeye.repositories.LinkRepository;
-import sh.ajo.linkeye.linkeye.repositories.UserRepository;
-import sh.ajo.linkeye.linkeye.services.mysql.ClickServiceImpl;
-import sh.ajo.linkeye.linkeye.services.mysql.LinkServiceImpl;
+import sh.ajo.linkeye.linkeye.services.ClickService;
+import sh.ajo.linkeye.linkeye.services.LinkService;
+import sh.ajo.linkeye.linkeye.services.UserService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -27,37 +25,34 @@ import java.util.Date;
 @Controller
 public class LinkManagementController {
 
-    private final LinkServiceImpl linkServiceImpl;
-    private final ClickServiceImpl clickServiceImpl;
-    private final LinkRepository linkRepository;
-    private final ClickRepository clickRepository;
-    private final UserRepository userRepository;
+    private final LinkService linkService;
+    private final ClickService clickService;
+    private final UserService userService;
 
-    public LinkManagementController(LinkServiceImpl linkServiceImpl, ClickServiceImpl clickServiceImpl, LinkRepository linkRepository, ClickRepository clickRepository, UserRepository userRepository) {
-        this.linkServiceImpl = linkServiceImpl;
-        this.clickServiceImpl = clickServiceImpl;
-        this.linkRepository = linkRepository;
-        this.clickRepository = clickRepository;
-        this.userRepository = userRepository;
+    public LinkManagementController(LinkService linkService, ClickService clickService, UserService userService) {
+        this.linkService = linkService;
+        this.clickService = clickService;
+        this.userService = userService;
     }
 
+
     @GetMapping("/links")
-    public String links(Model model, @RequestParam(required = false, defaultValue="1") @Min(1) int page, @RequestParam(required = false, defaultValue="10") @Min(10) @Max(100) int linksShown, Authentication authentication) {
+    public String links(Model model, @RequestParam(required = false, defaultValue = "1") @Min(1) int page, @RequestParam(required = false, defaultValue = "10") @Min(10) @Max(100) int linksShown, Authentication authentication) {
 
-        User requester = userRepository.getOneByUsername(authentication.getName());
+        User requester = userService.getOneByUsername(authentication.getName());
 
-        model.addAttribute("links", linkServiceImpl.findPaginated(page - 1, linksShown));
+        model.addAttribute("links", linkService.findPaginated(page - 1, linksShown));
         model.addAttribute("linkDTO", new LinkDTO());
-        model.addAttribute("totalLinksAvailable", linkRepository.countByOwner(requester));
-        model.addAttribute("clickRepository", clickRepository);
-        model.addAttribute("lastPage", (int) Math.ceil(linkRepository.countByOwner(requester) / (double) linksShown));
+        model.addAttribute("totalLinksAvailable", linkService.countByOwner(requester));
+        model.addAttribute("clickRepository", clickService);
+        model.addAttribute("lastPage", (int) Math.ceil(linkService.countByOwner(requester) / (double) linksShown));
         model.addAttribute("page", page);
         model.addAttribute("linksShown", linksShown);
         return "links";
     }
 
     @PostMapping("/links")
-    public String createLink(@Valid LinkDTO linkDTO, BindingResult bindingResult, Authentication authentication){
+    public String createLink(@Valid LinkDTO linkDTO, BindingResult bindingResult, Authentication authentication) {
 
         // Validate the form
         if (bindingResult.hasErrors()) {
@@ -65,7 +60,7 @@ public class LinkManagementController {
             return "redirect:/links?error";
         }
 
-        User requester = userRepository.getOneByUsername(authentication.getName());
+        User requester = userService.getOneByUsername(authentication.getName());
 
         Link newLink = new Link();
         newLink.setName(linkDTO.getName());
@@ -76,8 +71,8 @@ public class LinkManagementController {
         newLink.setActive(linkDTO.isActive());
 
         try {
-            linkRepository.save(newLink);
-        } catch (Exception e){
+            linkService.save(newLink);
+        } catch (Exception e) {
             LinkeyeApplication.LOGGER.debug("Link creation failed:\n " + e);
             return "redirect:/links?error";
         }
@@ -86,20 +81,20 @@ public class LinkManagementController {
     }
 
     @GetMapping("/links/{linkId}")
-    public String links(Model model, @RequestParam(required = false, defaultValue="1") @Min(1) int page, @RequestParam(required = false, defaultValue="10") @Min(10) @Max(100) int linksShown, Authentication authentication, @PathVariable Long linkId) {
+    public String links(Model model, @RequestParam(required = false, defaultValue = "1") @Min(1) int page, @RequestParam(required = false, defaultValue = "10") @Min(10) @Max(100) int linksShown, Authentication authentication, @PathVariable Long linkId) {
 
-        User requester = userRepository.getOneByUsername(authentication.getName());
-        Link link = linkRepository.getLinkById(linkId);
+        User requester = userService.getOneByUsername(authentication.getName());
+        Link link = linkService.getLinkById(linkId);
 
-        if (link.getOwner() == requester){
+        if (link.getOwner() == requester) {
 
             // Requester owns
             model.addAttribute("link", link);
             model.addAttribute("linkDTO", new LinkDTO(link));
-            model.addAttribute("clicks", clickServiceImpl.findPaginated(page - 1, linksShown, link));
-            model.addAttribute("totalClicksAvailable", clickRepository.countByLink(link));
-            model.addAttribute("clickRepository", clickRepository);
-            model.addAttribute("lastPage", (int) Math.ceil(clickRepository.countByLink(link) / (double) linksShown));
+            model.addAttribute("clicks", clickService.findPaginated(page - 1, linksShown, link));
+            model.addAttribute("totalClicksAvailable", clickService.countByLink(link));
+            model.addAttribute("clickRepository", clickService);
+            model.addAttribute("lastPage", (int) Math.ceil(clickService.countByLink(link) / (double) linksShown));
             model.addAttribute("page", page);
             model.addAttribute("linksShown", linksShown);
 
@@ -119,11 +114,11 @@ public class LinkManagementController {
             return "redirect:/links/" + linkId + "?error";
         }
 
-        User requester = userRepository.getOneByUsername(authentication.getName());
-        Link link = linkRepository.getLinkById(linkId);
+        User requester = userService.getOneByUsername(authentication.getName());
+        Link link = linkService.getLinkById(linkId);
 
         // Validate authorization
-        if (link.getOwner() == requester){
+        if (link.getOwner() == requester) {
 
             link.setName(linkDTO.getName());
             link.setDestination(linkDTO.getDestination());
@@ -131,28 +126,28 @@ public class LinkManagementController {
             link.setOwner(requester);
             link.setActive(linkDTO.isActive());
 
-        try {
-            linkRepository.save(link);
-        } catch (Exception e){
-            if (e instanceof ConstraintViolationException) {
-                // Here you're sure you have a ConstraintViolationException, you can handle it
-                LinkeyeApplication.LOGGER.debug("User Modification Failed:\n " + e);
+            try {
+                linkService.save(link);
+            } catch (Exception e) {
+                if (e instanceof ConstraintViolationException) {
+                    // Here you're sure you have a ConstraintViolationException, you can handle it
+                    LinkeyeApplication.LOGGER.debug("User Modification Failed:\n " + e);
+                }
+                return "redirect:/links/" + linkId + "?error";
             }
-            return "redirect:/links/" + linkId + "?error";
-        }
         }
 
         return "redirect:/links/" + linkId;
     }
 
     @GetMapping("/links/{linkid}/delete")
-    public String deleteLink(Authentication authentication, @PathVariable long linkid){
+    public String deleteLink(Authentication authentication, @PathVariable long linkid) {
 
-        User requester = userRepository.getOneByUsername(authentication.getName());
-        Link link = linkRepository.getLinkById(linkid);
+        User requester = userService.getOneByUsername(authentication.getName());
+        Link link = linkService.getLinkById(linkid);
 
         if (link.getOwner() == requester) {
-            linkRepository.deleteById(linkid);
+            linkService.deleteById(linkid);
         }
 
         return "redirect:/links";

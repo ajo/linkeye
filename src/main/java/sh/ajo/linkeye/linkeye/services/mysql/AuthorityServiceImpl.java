@@ -1,11 +1,12 @@
 package sh.ajo.linkeye.linkeye.services.mysql;
 
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import sh.ajo.linkeye.linkeye.model.Authority;
 import sh.ajo.linkeye.linkeye.repositories.AuthorityRepository;
-import sh.ajo.linkeye.linkeye.repositories.AuthorityRepository;
-import sh.ajo.linkeye.linkeye.services.AuthorityService;
 import sh.ajo.linkeye.linkeye.services.AuthorityService;
 
 import java.util.List;
@@ -139,5 +140,10 @@ public class AuthorityServiceImpl implements AuthorityService {
     @Override
     public <S extends Authority> boolean exists(Example<S> example) {
         return authorityRepository.exists(example);
+    }
+
+    @Override
+    public Authority getByAuthority(String authority) {
+        return authorityRepository.getByAuthority(authority);
     }
 }

@@ -6,7 +6,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -46,6 +45,10 @@ public class User implements UserDetails {
         return username;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return enabled;
@@ -66,10 +69,6 @@ public class User implements UserDetails {
         return enabled;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
@@ -77,6 +76,18 @@ public class User implements UserDetails {
 
     public void setAuthorities(List<Authority> authorities) {
         this.authorities = authorities;
+    }
+
+    public String getAuthoritiesList() {
+
+        String authoritiesString = "";
+        int i = 0;
+
+        for (Authority authority : this.authorities) {
+            authoritiesString = authoritiesString.concat(authority.getAuthority() + " ");
+        }
+
+        return authoritiesString;
     }
 
     public String getPassword() {

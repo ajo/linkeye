@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getOneByUsername(String username) {
-       return userRepository.getOneByUsername(username);
+        return userRepository.getOneByUsername(username);
     }
 
     @Override
