@@ -1,6 +1,7 @@
 package sh.ajo.linkeye.linkeye.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import sh.ajo.linkeye.linkeye.model.AuthorityLevel;
 import sh.ajo.linkeye.linkeye.model.User;
 
 import javax.validation.constraints.NotEmpty;
@@ -22,7 +23,7 @@ public class UserDTO {
         this.enabled = user.getEnabled();
         this.password = user.getPassword();
 
-        this.admin = user.getAuthoritiesList().contains("USER_ADMIN");
+        this.admin = user.getAuthoritiesList().contains(AuthorityLevel.ADMIN.getAuthorityLevel());
 
     }
 

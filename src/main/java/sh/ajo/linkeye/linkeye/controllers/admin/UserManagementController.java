@@ -60,11 +60,18 @@ public class UserManagementController {
 
         // Validate the form
         if (bindingResult.hasErrors()) {
-            logger.debug("User Creation Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
+            logger.debug("User Creation Failed - submitted form was not valid.");
             return "redirect:/users?error";
         }
 
         User newUser = new User();
+
+        // Check if the name is new, and if so, is not registered
+        if ((!userDTO.getUsername().equals(newUser.getUsername())) && userService.findOneByUsername(userDTO.getUsername()).isPresent()){
+            logger.debug("User Modification Failed - duplicate username.");
+            return "redirect:/users?error";
+        }
+
         newUser.setUsername(userDTO.getUsername());
         newUser.setEnabled(userDTO.isEnabled());
         newUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
@@ -110,15 +117,23 @@ public class UserManagementController {
     @PostMapping("/users/{userId}")
     public String updateUser(@Valid UserDTO userDTO, BindingResult bindingResult, @PathVariable long userId) {
 
-        // Validate the form
         if (bindingResult.hasErrors()) {
             logger.debug("User Modification Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
             return "redirect:/users/" + userId + "?error";
         }
 
+
+
         if (userService.existsById(userId)) {
 
-            User newUser = userService.getOneByUsername(userDTO.getUsername());
+            User newUser = userService.getOneById(userId);
+
+            // Check if the name is new, and if so, is not registered
+            if ((!userDTO.getUsername().equals(newUser.getUsername())) && userService.findOneByUsername(userDTO.getUsername()).isPresent()){
+                logger.debug("User Modification Failed - duplicate username.");
+                return "redirect:/users/" + userId + "?error";
+            }
+
             newUser.setUsername(userDTO.getUsername());
             newUser.setEnabled(userDTO.isEnabled());
 
