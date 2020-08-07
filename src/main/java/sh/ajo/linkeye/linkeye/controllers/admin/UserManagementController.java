@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import sh.ajo.linkeye.linkeye.LinkeyeApplication;
 import sh.ajo.linkeye.linkeye.dto.UserDTO;
 import sh.ajo.linkeye.linkeye.model.Authority;
+import sh.ajo.linkeye.linkeye.model.AuthorityLevel;
 import sh.ajo.linkeye.linkeye.model.User;
 import sh.ajo.linkeye.linkeye.services.AuthorityService;
 import sh.ajo.linkeye.linkeye.services.UserService;
@@ -69,9 +70,9 @@ public class UserManagementController {
         Authority authority;
 
         if (userDTO.isAdmin()) {
-            authority = authorityService.getByAuthority("ROLE_ADMIN");
+            authority = authorityService.getByAuthority(AuthorityLevel.ADMIN.getAuthorityLevel());
         } else {
-            authority = authorityService.getByAuthority("ROLE_USER");
+            authority = authorityService.getByAuthority(AuthorityLevel.USER.getAuthorityLevel());
         }
 
         newUser.setAuthorities(new ArrayList<>(Arrays.asList(authority)));
@@ -127,9 +128,9 @@ public class UserManagementController {
             Authority authority;
 
             if (userDTO.isAdmin()) {
-                authority = authorityService.getByAuthority("ROLE_ADMIN");
+                authority = authorityService.getByAuthority(AuthorityLevel.ADMIN.getAuthorityLevel());
             } else {
-                authority = authorityService.getByAuthority("ROLE_USER");
+                authority = authorityService.getByAuthority(AuthorityLevel.USER.getAuthorityLevel());
             }
 
             newUser.setAuthorities(new ArrayList<>(Arrays.asList(authority)));
