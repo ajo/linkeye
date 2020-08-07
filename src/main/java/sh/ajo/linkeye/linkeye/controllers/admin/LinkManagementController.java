@@ -1,6 +1,8 @@
 package sh.ajo.linkeye.linkeye.controllers.admin;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import sh.ajo.linkeye.linkeye.LinkeyeApplication;
 import sh.ajo.linkeye.linkeye.dto.LinkDTO;
 import sh.ajo.linkeye.linkeye.model.Link;
 import sh.ajo.linkeye.linkeye.model.User;
@@ -28,6 +29,7 @@ public class LinkManagementController {
     private final LinkService linkService;
     private final ClickService clickService;
     private final UserService userService;
+    private final Logger logger = LoggerFactory.getLogger(LinkManagementController.class);
 
     public LinkManagementController(LinkService linkService, ClickService clickService, UserService userService) {
         this.linkService = linkService;
@@ -56,7 +58,7 @@ public class LinkManagementController {
 
         // Validate the form
         if (bindingResult.hasErrors()) {
-            LinkeyeApplication.LOGGER.debug("Link Creation Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
+            logger.debug("Link Creation Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
             return "redirect:/links?error";
         }
 
@@ -73,7 +75,7 @@ public class LinkManagementController {
         try {
             linkService.save(newLink);
         } catch (Exception e) {
-            LinkeyeApplication.LOGGER.debug("Link creation failed:\n " + e);
+            logger.debug("Link creation failed:\n " + e);
             return "redirect:/links?error";
         }
 
@@ -131,7 +133,7 @@ public class LinkManagementController {
             } catch (Exception e) {
                 if (e instanceof ConstraintViolationException) {
                     // Here you're sure you have a ConstraintViolationException, you can handle it
-                    LinkeyeApplication.LOGGER.debug("User Modification Failed:\n " + e);
+                    logger.debug("User Modification Failed:\n " + e);
                 }
                 return "redirect:/links/" + linkId + "?error";
             }

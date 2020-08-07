@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import sh.ajo.linkeye.linkeye.LinkeyeApplication;
 import sh.ajo.linkeye.linkeye.model.Authority;
 import sh.ajo.linkeye.linkeye.model.User;
 import sh.ajo.linkeye.linkeye.services.AuthorityService;
@@ -17,7 +16,7 @@ import java.util.Arrays;
 @Component
 public class Bootstrap implements CommandLineRunner {
 
-    static final Logger LOGGER = LoggerFactory.getLogger(LinkeyeApplication.class);
+    private final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final AuthorityService authorityService;
@@ -49,7 +48,7 @@ public class Bootstrap implements CommandLineRunner {
 
 
             userService.saveAndFlush(user);
-            LOGGER.info("Created default account linkeye/linkeye");
+            logger.info("Created default account linkeye/linkeye");
 
         }
 

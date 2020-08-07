@@ -1,5 +1,7 @@
 package sh.ajo.linkeye.linkeye.controllers.admin;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import sh.ajo.linkeye.linkeye.LinkeyeApplication;
 import sh.ajo.linkeye.linkeye.dto.UserDTO;
 import sh.ajo.linkeye.linkeye.model.Authority;
 import sh.ajo.linkeye.linkeye.model.AuthorityLevel;
@@ -32,6 +33,7 @@ public class UserManagementController {
     private final UserService userService;
     private final AuthorityService authorityService;
     private final PasswordEncoder passwordEncoder;
+    private final Logger logger = LoggerFactory.getLogger(UserManagementController.class);
 
     public UserManagementController(UserService userService, AuthorityService authorityService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
@@ -58,7 +60,7 @@ public class UserManagementController {
 
         // Validate the form
         if (bindingResult.hasErrors()) {
-            LinkeyeApplication.LOGGER.debug("User Creation Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
+            logger.debug("User Creation Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
             return "redirect:/users?error";
         }
 
@@ -110,7 +112,7 @@ public class UserManagementController {
 
         // Validate the form
         if (bindingResult.hasErrors()) {
-            LinkeyeApplication.LOGGER.debug("User Modification Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
+            logger.debug("User Modification Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
             return "redirect:/users/" + userId + "?error";
         }
 
@@ -138,7 +140,7 @@ public class UserManagementController {
             try {
                 userService.saveAndFlush(newUser);
             } catch (Exception e) {
-                LinkeyeApplication.LOGGER.debug("User Modification Failed:\n " + e);
+                logger.debug("User Modification Failed:\n " + e);
                 return "redirect:/users?error";
             }
         }
