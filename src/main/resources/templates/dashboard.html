@@ -1,132 +1,112 @@
 <!DOCTYPE html>
-<html xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-
+<html xmlns:th="https://www.thymeleaf.org">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
     <title>Dashboard - LinkEye</title>
-    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" th:href="@{/fonts/fontawesome-all.min.css}">
+    <th:block th:replace="fragments/general :: css"></th:block>
 </head>
-
 <body id="page-top">
-    <div id="wrapper">
-        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
-            <div class="container-fluid d-flex flex-column p-0">
-                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
-                    <div class="sidebar-brand-icon rotate-n-15"><i class="far fa-eye"></i></div>
-                    <div class="sidebar-brand-text mx-3"><span>LinkEye</span></div>
-                </a>
-                <hr class="sidebar-divider my-0">
-                <ul class="nav navbar-nav text-light" id="accordionSidebar">
-                    <li class="nav-item" role="presentation"><a class="nav-link active" th:href="@{/dashboard}"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" th:href="@{/links}"><i class="fas fa-link"></i><span>Links</span></a></li>
-                    <li sec:authorize="hasAuthority('ROLE_ADMIN')" class="nav-item" role="presentation"><a class="nav-link" th:href="@{/users}"><i class="far fa-user-circle"></i><span>Users</span></a></li>
-                </ul>
-                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
-            </div>
-        </nav>
-        <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content">
-                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
-                    <div class="container-fluid">
-                        <button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
-                        <form class="form-inline d-none d-sm-inline-block mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                            <div class="input-group">
-                                <input class="bg-light form-control border-0 small" type="text" placeholder="Search for ...">
-                                <div class="input-group-append"><button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i></button></div>
-                            </div>
-                        </form>
-                        <ul class="nav navbar-nav flex-nowrap ml-auto">
-                            <li class="nav-item dropdown no-arrow" role="presentation">
-                                <div class="nav-item dropdown no-arrow">
-                                    <a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><span th:text="${#authentication.getName()}" class="d-none d-lg-inline mr-2 text-gray-600 small text-capitalize">$Username</span></a>
-                                    <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
-                                        <a class="dropdown-item" role="presentation" href="#"><i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Change Password</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" role="presentation" th:href="@{/logout}" ><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
+<div id="wrapper">
+    <div th:replace="fragments/navbar :: navbar"></div>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
                 <div class="container-fluid">
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4">
-                        <h3 class="text-dark mb-0">Dashboard</h3><a class="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#"><i class="fas fa-download fa-sm text-white-50"></i>&nbsp;Generate Report</a></div>
-                    <div class="row">
-                        <div class="col-md-6 col-xl-3 mb-4">
-                            <div class="card shadow border-left-primary py-2">
-                                <div class="card-body">
-                                    <div class="row align-items-center no-gutters">
-                                        <div class="col mr-2">
-                                            <div class="text-uppercase text-primary font-weight-bold text-xs mb-1"><span>Clicks (Today)</span></div>
-                                            <div class="text-dark font-weight-bold h5 mb-0"><span th:text="${totalDailyClicks ?:'0'}">Daily Clicks</span></div>
-                                        </div>
-                                        <div class="col-auto"><i class="fas fa-link fa-2x text-gray-300"></i></div>
+                    <button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                    <form class="form-inline d-none d-sm-inline-block mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                        <div class="input-group">
+                            <input class="bg-light form-control border-0 small" type="text" placeholder="Search for ..." />
+                            <div class="input-group-append">
+                                <button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                    <ul class="nav navbar-nav flex-nowrap ml-auto">
+                        <li class="nav-item dropdown no-arrow" role="presentation">
+                            <div class="nav-item dropdown no-arrow">
+                                <a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#">
+                                    <span th:text="${#authentication.getName()}" class="d-none d-lg-inline mr-2 text-gray-600 small text-capitalize">$Username</span>
+                                </a>
+                                <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
+                                    <a class="dropdown-item" role="presentation" href="#"><i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Change Password</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" role="presentation" th:href="@{/logout}"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="container-fluid">
+                <div class="d-sm-flex justify-content-between align-items-center mb-4">
+                    <h3 class="text-dark mb-0">Dashboard</h3>
+                    <a class="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#"><i class="fas fa-download fa-sm text-white-50"></i>&nbsp;Generate Report</a>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-xl-3 mb-4">
+                        <div class="card shadow border-left-primary py-2">
+                            <div class="card-body">
+                                <div class="row align-items-center no-gutters">
+                                    <div class="col mr-2">
+                                        <div class="text-uppercase text-primary font-weight-bold text-xs mb-1"><span>Clicks (Today)</span></div>
+                                        <div class="text-dark font-weight-bold h5 mb-0"><span th:text="${totalDailyClicks ?:'0'}">Daily Clicks</span></div>
                                     </div>
+                                    <div class="col-auto"><i class="fas fa-link fa-2x text-gray-300"></i></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 col-xl-3 mb-4">
-                            <div class="card shadow border-left-success py-2">
-                                <div class="card-body">
-                                    <div class="row align-items-center no-gutters">
-                                        <div class="col mr-2">
-                                            <div class="text-uppercase text-success font-weight-bold text-xs mb-1"><span>Clicks (This Month)</span></div>
-                                            <div class="text-dark font-weight-bold h5 mb-0"><span th:text="${totalMonthlyClicks ?:'0'}">Monthly Clicks</span></div>
-                                        </div>
-                                        <div class="col-auto"><i class="far fa-calendar-check fa-2x text-gray-300"></i></div>
+                    </div>
+                    <div class="col-md-6 col-xl-3 mb-4">
+                        <div class="card shadow border-left-success py-2">
+                            <div class="card-body">
+                                <div class="row align-items-center no-gutters">
+                                    <div class="col mr-2">
+                                        <div class="text-uppercase text-success font-weight-bold text-xs mb-1"><span>Clicks (This Month)</span></div>
+                                        <div class="text-dark font-weight-bold h5 mb-0"><span th:text="${totalMonthlyClicks ?:'0'}">Monthly Clicks</span></div>
                                     </div>
+                                    <div class="col-auto"><i class="far fa-calendar-check fa-2x text-gray-300"></i></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 col-xl-3 mb-4">
-                            <div class="card shadow border-left-info py-2">
-                                <div class="card-body">
-                                    <div class="row align-items-center no-gutters">
-                                        <div class="col mr-2">
-                                            <div class="text-uppercase text-info font-weight-bold text-xs mb-1"><span>Top Link (By Clicks)</span></div>
-                                            <div class="row no-gutters align-items-center">
-                                                <div class="col-auto">
-                                                    <div class="text-dark font-weight-bold h5 mb-0 mr-3"><a th:text="${topLink?.getName() ?:'N/A'}" th:href="@{'/links/' + ${topLink?.getId() ?:''}}">Top Link</a></div>
-                                                </div>
+                    </div>
+                    <div class="col-md-6 col-xl-3 mb-4">
+                        <div class="card shadow border-left-info py-2">
+                            <div class="card-body">
+                                <div class="row align-items-center no-gutters">
+                                    <div class="col mr-2">
+                                        <div class="text-uppercase text-info font-weight-bold text-xs mb-1"><span>Top Link (By Clicks)</span></div>
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col-auto">
+                                                <div class="text-dark font-weight-bold h5 mb-0 mr-3"><a th:text="${topLink?.getName() ?:'N/A'}" th:href="@{'/links/' + ${topLink?.getId() ?:''}}">Top Link</a></div>
                                             </div>
                                         </div>
-                                        <div class="col-auto"><i class="fas fa-arrow-up fa-2x text-gray-300"></i></div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-xl-3 mb-4">
-                            <div class="card shadow border-left-warning py-2">
-                                <div class="card-body">
-                                    <div class="row align-items-center no-gutters">
-                                        <div class="col mr-2">
-                                            <div class="text-uppercase text-warning font-weight-bold text-xs mb-1"><span>Your Newest Link</span></div>
-                                            <div class="text-dark font-weight-bold h5 mb-0"><a th:text="${newestLink?.getName() ?:'N/A'}" th:href="@{'/links/' + ${newestLink?.getId() ?:''}}">Newest Link</a></div>
-                                        </div>
-                                        <div class="col-auto"><i class="fas fa-crosshairs fa-2x text-gray-300"></i></div>
-                                    </div>
+                                    <div class="col-auto"><i class="fas fa-arrow-up fa-2x text-gray-300"></i></div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-6 col-xl-3 mb-4">
+                        <div class="card shadow border-left-warning py-2">
+                            <div class="card-body">
+                                <div class="row align-items-center no-gutters">
+                                    <div class="col mr-2">
+                                        <div class="text-uppercase text-warning font-weight-bold text-xs mb-1"><span>Your Newest Link</span></div>
+                                        <div class="text-dark font-weight-bold h5 mb-0"><a th:text="${newestLink?.getName() ?:'N/A'}" th:href="@{'/links/' + ${newestLink?.getId() ?:''}}">Newest Link</a></div>
+                                    </div>
+                                    <div class="col-auto"><i class="fas fa-crosshairs fa-2x text-gray-300"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <footer class="bg-white sticky-footer">
-            <div class="container my-auto">
-                <div class="text-center my-auto copyright"><span>Copyright © LinkEye 2020</span></div>
-            </div>
-        </footer>
-    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
-    <script th:src="@{/js/jquery.min.js}" type="text/javascript"></script>
-    <script th:src="@{/js/bootstrap.min.js}" type="text/javascript"></script>
-    <script th:src="@{/js/chart.min.js}"></script>
-    <script th:src="@{/js/bs-init.js}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
-    <script th:src="@{/js/theme.js}"></script>
+        <div th:replace="fragments/footer :: footer"></div>
+    </div>
+    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+</div>
+<th:block th:replace="fragments/general :: js"></th:block>
 </body>
-
 </html>
