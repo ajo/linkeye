@@ -69,11 +69,11 @@ public class LinkServiceImpl implements LinkService {
     public Link createLink(LinkDTO linkDTO) {
 
         // Force all links to a "safe" location in demo mode
-        if (Arrays.stream(environment.getActiveProfiles()).anyMatch(Predicate.isEqual("demo"))){
+        if (Arrays.stream(environment.getActiveProfiles()).anyMatch(Predicate.isEqual("demo"))) {
             linkDTO.setDestination("https://github.com/ajo/linkeye");
         }
 
-       return linkRepository.save(new Link(linkDTO));
+        return linkRepository.save(new Link(linkDTO));
     }
 
     @Override
@@ -84,7 +84,7 @@ public class LinkServiceImpl implements LinkService {
         link.setSourcePath(linkDTO.getPath());
 
         // Force all links to a "safe" location in demo mode
-        if (Arrays.stream(environment.getActiveProfiles()).anyMatch(Predicate.isEqual("demo"))){
+        if (Arrays.stream(environment.getActiveProfiles()).anyMatch(Predicate.isEqual("demo"))) {
             linkDTO.setDestination("https://github.com/ajo/linkeye");
         } else {
             link.setDestination(linkDTO.getDestination());

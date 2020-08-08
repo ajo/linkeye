@@ -32,7 +32,7 @@ public class Bootstrap implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         // Check authorities
-        if (!authorityService.findByAuthority(AuthorityLevel.USER.getAuthorityLevel()).isPresent()){
+        if (!authorityService.findByAuthority(AuthorityLevel.USER.getAuthorityLevel()).isPresent()) {
             Authority userLevel = new Authority(AuthorityLevel.USER.getAuthorityLevel());
             authorityService.saveAndFlush(userLevel);
             logger.info("Created authority ".concat(AuthorityLevel.USER.getAuthorityLevel()));

@@ -7,10 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import sh.ajo.linkeye.linkeye.dto.LinkDTO;
 import sh.ajo.linkeye.linkeye.model.Link;
@@ -24,6 +21,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 @Controller
+@RequestMapping("/links")
 public class LinkManagementController {
 
     private final LinkService linkService;
@@ -37,8 +35,29 @@ public class LinkManagementController {
         this.userService = userService;
     }
 
-    @GetMapping("/links")
-    public String links(Model model, @RequestParam(required = false, defaultValue = "1") @Min(1) int page, @RequestParam(required = false, defaultValue = "10") @Min(10) @Max(100) int linksShown, Authentication authentication) {
+    @GetMapping("/{linkId}")
+    public String getLink(Model model, @RequestParam(required = false, defaultValue = "1") @Min(1) int page, @RequestParam(required = false, defaultValue = "10") @Min(10) @Max(100) int linksShown, Authentication authentication, @PathVariable Long linkId) {
+
+        User requester = userService.getOneByUsername(authentication.getName());
+        Link link = linkService.getLinkById(linkId);
+
+        if (linkService.existsById(linkId) && (link.getOwner() == requester)) {
+            model.addAttribute("link", link);
+            model.addAttribute("linkDTO", new LinkDTO(link));
+            model.addAttribute("clicks", clickService.findPaginated(page - 1, linksShown, link));
+            model.addAttribute("totalClicksAvailable", clickService.countByLink(link));
+            model.addAttribute("clickRepository", clickService);
+            model.addAttribute("lastPage", (int) Math.ceil(clickService.countByLink(link) / (double) linksShown));
+            model.addAttribute("page", page);
+            model.addAttribute("linksShown", linksShown);
+            return "user/linkdetails";
+        }
+
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping
+    public String getAllLinks(Model model, @RequestParam(required = false, defaultValue = "1") @Min(1) int page, @RequestParam(required = false, defaultValue = "10") @Min(10) @Max(100) int linksShown, Authentication authentication) {
 
         User requester = userService.getOneByUsername(authentication.getName());
 
@@ -49,10 +68,10 @@ public class LinkManagementController {
         model.addAttribute("lastPage", (int) Math.ceil(linkService.countByOwner(requester) / (double) linksShown));
         model.addAttribute("page", page);
         model.addAttribute("linksShown", linksShown);
-        return "links";
+        return "user/links";
     }
 
-    @PostMapping("/links")
+    @PostMapping
     public String createLink(@Valid LinkDTO linkDTO, BindingResult bindingResult, Authentication authentication) {
 
         if (bindingResult.hasErrors()) {
@@ -67,28 +86,7 @@ public class LinkManagementController {
         return "redirect:/links";
     }
 
-    @GetMapping("/links/{linkId}")
-    public String links(Model model, @RequestParam(required = false, defaultValue = "1") @Min(1) int page, @RequestParam(required = false, defaultValue = "10") @Min(10) @Max(100) int linksShown, Authentication authentication, @PathVariable Long linkId) {
-
-        User requester = userService.getOneByUsername(authentication.getName());
-        Link link = linkService.getLinkById(linkId);
-
-        if (linkService.existsById(linkId) && (link.getOwner() == requester)){
-            model.addAttribute("link", link);
-            model.addAttribute("linkDTO", new LinkDTO(link));
-            model.addAttribute("clicks", clickService.findPaginated(page - 1, linksShown, link));
-            model.addAttribute("totalClicksAvailable", clickService.countByLink(link));
-            model.addAttribute("clickRepository", clickService);
-            model.addAttribute("lastPage", (int) Math.ceil(clickService.countByLink(link) / (double) linksShown));
-            model.addAttribute("page", page);
-            model.addAttribute("linksShown", linksShown);
-            return "linkdetails";
-        }
-
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
-
-    @PostMapping("/links/{linkId}")
+    @PostMapping("/{linkId}")
     public String updateLink(@Valid LinkDTO linkDTO, BindingResult bindingResult, Authentication authentication, @PathVariable long linkId) {
 
         if (bindingResult.hasErrors()) {
@@ -98,7 +96,7 @@ public class LinkManagementController {
         User requester = userService.getOneByUsername(authentication.getName());
         Link link = linkService.getLinkById(linkId);
 
-        if (linkService.existsById(linkId) && (link.getOwner() == requester)){
+        if (linkService.existsById(linkId) && (link.getOwner() == requester)) {
             linkService.updateLink(link, linkDTO);
             return "redirect:/links";
         }
@@ -106,13 +104,13 @@ public class LinkManagementController {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("/links/{linkid}/delete")
+    @GetMapping("/{linkId}/delete")
     public String deleteLink(Authentication authentication, @PathVariable long linkId) {
 
         User requester = userService.getOneByUsername(authentication.getName());
         Link link = linkService.getLinkById(linkId);
 
-        if (linkService.existsById(linkId) && (link.getOwner() == requester)){
+        if (linkService.existsById(linkId) && (link.getOwner() == requester)) {
             linkService.deleteById(linkId);
             return "redirect:/links";
         }

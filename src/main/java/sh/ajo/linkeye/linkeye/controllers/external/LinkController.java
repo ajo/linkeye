@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import sh.ajo.linkeye.linkeye.model.Click;
 import sh.ajo.linkeye.linkeye.model.Link;
@@ -13,6 +14,7 @@ import sh.ajo.linkeye.linkeye.services.LinkService;
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
+@RequestMapping("/link")
 public class LinkController {
 
     private final LinkService linkService;
@@ -23,7 +25,7 @@ public class LinkController {
         this.clickService = clickService;
     }
 
-    @GetMapping("/link/{link}")
+    @GetMapping("/{link}")
     public String root(@PathVariable String link, HttpServletRequest request) {
 
         Link target = linkService.findLinkBySourcePath(link);

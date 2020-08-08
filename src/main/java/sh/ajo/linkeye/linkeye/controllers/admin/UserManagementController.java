@@ -8,10 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import sh.ajo.linkeye.linkeye.dto.UserDTO;
 import sh.ajo.linkeye.linkeye.exception.DuplicateUsernameException;
@@ -25,6 +22,7 @@ import javax.validation.constraints.Min;
 
 
 @Controller
+@RequestMapping("/users")
 public class UserManagementController {
 
     private final UserService userService;
@@ -35,7 +33,25 @@ public class UserManagementController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @GetMapping("/users")
+    @GetMapping("/{userId}")
+    public String getUser(Model model, @PathVariable Long userId) {
+
+        if (userService.existsById(userId)) {
+
+            User user = userService.getOneById(userId);
+
+            // Requester owns
+            model.addAttribute("user", user);
+            model.addAttribute("userDto", new UserDTO(user));
+
+            return "admin/userdetails";
+        }
+
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @GetMapping
     public String getAllUsers(Model model, @RequestParam(required = false, defaultValue = "1") @Min(1) int page, @RequestParam(required = false, defaultValue = "10") @Min(10) @Max(100) int usersShown, Authentication authentication) {
 
         model.addAttribute("users", userService.findPaginated(page - 1, usersShown));
@@ -44,11 +60,11 @@ public class UserManagementController {
         model.addAttribute("lastPage", (int) Math.ceil(userService.count() / (double) usersShown));
         model.addAttribute("page", page);
         model.addAttribute("usersShown", usersShown);
-        return "users";
+        return "admin/users";
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @PostMapping("/users")
+    @PostMapping
     public String createUser(@Valid UserDTO userDTO, BindingResult bindingResult, @RequestParam(required = false, defaultValue = "false") boolean isAdmin) {
 
         if (bindingResult.hasErrors()) {
@@ -70,25 +86,7 @@ public class UserManagementController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @GetMapping("/users/{userId}")
-    public String getUser(Model model, @PathVariable Long userId) {
-
-        if (userService.existsById(userId)) {
-
-            User user = userService.getOneById(userId);
-
-            // Requester owns
-            model.addAttribute("user", user);
-            model.addAttribute("userDto", new UserDTO(user));
-
-            return "userdetails";
-        }
-
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
-
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @PostMapping("/users/{userId}")
+    @PostMapping("/{userId}")
     public String updateUser(@Valid UserDTO userDTO, BindingResult bindingResult, @PathVariable long userId) {
 
         if (bindingResult.hasErrors()) {
@@ -113,7 +111,7 @@ public class UserManagementController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @GetMapping("/users/{userId}/delete")
+    @GetMapping("/{userId}/delete")
     public String deleteUser(@PathVariable long userId) {
 
         if (userService.existsById(userId)) {

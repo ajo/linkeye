@@ -6,7 +6,7 @@ public enum AuthorityLevel {
     USER("ROLE_USER");
 
 
-    private String authorityLevel;
+    private final String authorityLevel;
 
     AuthorityLevel(String authorityLevel) {
         this.authorityLevel = authorityLevel;

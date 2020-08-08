@@ -63,10 +63,10 @@ public class UserServiceImpl implements UserService {
     public User updateUser(User user, UserDTO userDTO) throws DuplicateUsernameException {
 
         // Do not change the linkeye demo admin account if running in demo mode
-        if (!(user.getUsername().equalsIgnoreCase("linkeye") && Arrays.stream(environment.getActiveProfiles()).anyMatch(Predicate.isEqual("demo")))){
+        if (!(user.getUsername().equalsIgnoreCase("linkeye") && Arrays.stream(environment.getActiveProfiles()).anyMatch(Predicate.isEqual("demo")))) {
 
             // Do not update to taken usernames
-            if ((!userDTO.getUsername().equals(user.getUsername()) && userRepository.findOneByUsername(userDTO.getUsername()).isPresent())){
+            if ((!userDTO.getUsername().equals(user.getUsername()) && userRepository.findOneByUsername(userDTO.getUsername()).isPresent())) {
                 throw new DuplicateUsernameException();
             } else {
                 user.setUsername(userDTO.getUsername());
@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService {
 
             user.setEnabled(userDTO.isEnabled());
 
-            if (userDTO.isAdmin()){
+            if (userDTO.isAdmin()) {
                 userDTO.getAuthorities().add(authorityService.getByAuthority(AuthorityLevel.ADMIN.getAuthorityLevel()));
             } else {
                 userDTO.getAuthorities().add(authorityService.getByAuthority(AuthorityLevel.USER.getAuthorityLevel()));
@@ -98,11 +98,11 @@ public class UserServiceImpl implements UserService {
     public User createUser(UserDTO userDTO) throws DuplicateUsernameException, InvalidPasswordException {
 
         // Do not create users with taken usernames
-        if (userRepository.findOneByUsername(userDTO.getUsername()).isPresent()){
+        if (userRepository.findOneByUsername(userDTO.getUsername()).isPresent()) {
             throw new DuplicateUsernameException();
         }
 
-        if (userDTO.isAdmin()){
+        if (userDTO.isAdmin()) {
             userDTO.getAuthorities().add(authorityService.getByAuthority(AuthorityLevel.ADMIN.getAuthorityLevel()));
         } else {
             userDTO.getAuthorities().add(authorityService.getByAuthority(AuthorityLevel.USER.getAuthorityLevel()));
@@ -152,7 +152,7 @@ public class UserServiceImpl implements UserService {
     public void delete(User user) {
 
         // Do not change the linkeye demo admin account if running in demo mode
-        if (!(user.getUsername().equalsIgnoreCase("linkeye") && Arrays.stream(environment.getActiveProfiles()).anyMatch(Predicate.isEqual("demo")))){
+        if (!(user.getUsername().equalsIgnoreCase("linkeye") && Arrays.stream(environment.getActiveProfiles()).anyMatch(Predicate.isEqual("demo")))) {
             userRepository.delete(user);
         }
     }

@@ -23,7 +23,7 @@ public class DashboardController {
     }
 
     @GetMapping("/")
-    public String root() {
+    public String index() {
         return "redirect:/dashboard";
     }
 
@@ -37,7 +37,7 @@ public class DashboardController {
         model.addAttribute("totalDailyClicks", clickService.countTotalClicksForUserSinceDate(requester, 1));
         model.addAttribute("totalMonthlyClicks", clickService.countTotalClicksForUserSinceDate(requester, 30));
 
-        return "dashboard";
+        return "user/dashboard";
     }
 
 }
