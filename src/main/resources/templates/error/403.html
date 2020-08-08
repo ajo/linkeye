@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <title>404 - LinkEye</title>
+    <th:block th:replace="fragments/general :: css"></th:block>
+</head>
+
+<body class="bg-gradient-primary">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-9 col-lg-12 col-xl-10">
+            <div class="card shadow-lg o-hidden border-0 my-5">
+                <div class="card-body p-0">
+                    <div class="row">
+                        <div class="col-lg-6 text-dark d-none d-lg-flex justify-content-xl-center align-items-xl-center" style="font-size: 280px;">
+                            <i class="far fa-eye d-lg-flex align-items-center justify-content-lg-center align-items-lg-center"></i>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="p-5">
+                                <div class="text-center">
+                                    <h1 class="text-dark mb-4">403</h1>
+                                    <p>Access is forbidden.</p>
+                                    <a th:href="@{/}" type="button" class="btn btn-primary backButton">Back</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="fragments/general :: js"></th:block>
+<script type="application/javascript">
+    $(".backButton").on("click", function(e){
+        e.preventDefault();
+        window.history.back();
+    });
+</script>
+</body>
+</html>
