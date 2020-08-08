@@ -146,4 +146,9 @@ public class AuthorityServiceImpl implements AuthorityService {
     public Authority getByAuthority(String authority) {
         return authorityRepository.getByAuthority(authority);
     }
+
+    @Override
+    public Optional<Authority> findByAuthority(String authority) {
+        return authorityRepository.findByAuthority(authority);
+    }
 }

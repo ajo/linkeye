@@ -6,6 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import sh.ajo.linkeye.linkeye.model.Authority;
+import sh.ajo.linkeye.linkeye.model.AuthorityLevel;
 import sh.ajo.linkeye.linkeye.model.User;
 import sh.ajo.linkeye.linkeye.services.AuthorityService;
 import sh.ajo.linkeye.linkeye.services.UserService;
@@ -27,24 +28,30 @@ public class Bootstrap implements CommandLineRunner {
         this.authorityService = authorityService;
     }
 
-
-    // Create default accounts if this is a fresh install / all accounts are deleted.
     @Override
     public void run(String... args) throws Exception {
 
-        if (userService.count() == 0) {
-
-            Authority userLevel = new Authority("ROLE_USER");
+        // Check authorities
+        if (!authorityService.findByAuthority(AuthorityLevel.USER.getAuthorityLevel()).isPresent()){
+            Authority userLevel = new Authority(AuthorityLevel.USER.getAuthorityLevel());
             authorityService.saveAndFlush(userLevel);
+            logger.info("Created authority ".concat(AuthorityLevel.USER.getAuthorityLevel()));
+        }
 
-            Authority adminLevel = new Authority("ROLE_ADMIN");
+        if (!authorityService.findByAuthority(AuthorityLevel.ADMIN.getAuthorityLevel()).isPresent()) {
+            Authority adminLevel = new Authority(AuthorityLevel.ADMIN.getAuthorityLevel());
             authorityService.saveAndFlush(adminLevel);
+            logger.info("Created authority ".concat(AuthorityLevel.ADMIN.getAuthorityLevel()));
+        }
+
+        // Check accounts
+        if (userService.count() == 0) {
 
             User user = new User();
             user.setUsername("linkeye");
             user.setPassword(passwordEncoder.encode("linkeye"));
             user.setEnabled(true);
-            user.setAuthorities(new ArrayList<>(Arrays.asList(adminLevel)));
+            user.setAuthorities(new ArrayList<>(Arrays.asList(authorityService.getByAuthority(AuthorityLevel.ADMIN.getAuthorityLevel()))));
 
 
             userService.saveAndFlush(user);
