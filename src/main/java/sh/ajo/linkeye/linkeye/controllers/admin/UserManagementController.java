@@ -74,15 +74,15 @@ public class UserManagementController {
 
         try {
             userService.createUser(userDTO);
+            return "redirect:/users?success";
         } catch (DuplicateUsernameException e) {
             logger.debug("User creation failed - duplicate username.");
-            return "redirect:/users?error";
+            return "redirect:/users?badUsername";
         } catch (InvalidPasswordException e) {
             logger.debug("User creation failed - bad password.");
-            return "redirect:/users?error";
+            return "redirect:/users?badPassword";
         }
 
-        return "redirect:/users";
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
@@ -100,10 +100,10 @@ public class UserManagementController {
 
             try {
                 userService.updateUser(targetUser, userDTO);
-                return "redirect:/users";
+                return "redirect:/users?success";
             } catch (DuplicateUsernameException e) {
                 logger.debug("User modification failed - duplicate username.");
-                return "redirect:/users?error";
+                return "redirect:/users?badUsername";
             }
         }
 
@@ -116,7 +116,7 @@ public class UserManagementController {
 
         if (userService.existsById(userId)) {
             userService.deleteById(userId);
-            return "redirect:/users";
+            return "redirect:/users?success";
         }
 
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);

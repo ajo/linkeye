@@ -86,7 +86,22 @@
                         </div>
                         <div th:if="${param.error}">
                             <div class="alert alert-danger">
-                                Whoops, something went wrong, please re-try creating a user.
+                                Whoops, something went wrong, please re-try.
+                            </div>
+                        </div>
+                        <div th:if="${#httpServletRequest.getParameter('badUsername') != null}">
+                            <div class="alert alert-danger">
+                                Cannot update username. Desired name is in use.
+                            </div>
+                        </div>
+                        <div th:if="${#httpServletRequest.getParameter('badPassword') != null}">
+                            <div class="alert alert-danger">
+                                Cannot create a user with a blank or invalid password.
+                            </div>
+                        </div>
+                        <div th:if="${#httpServletRequest.getParameter('success')}">
+                            <div class="alert alert-success">
+                                User updated.
                             </div>
                         </div>
                         <div class="table-responsive table mt-2" role="grid" aria-describedby="dataTable_info">
