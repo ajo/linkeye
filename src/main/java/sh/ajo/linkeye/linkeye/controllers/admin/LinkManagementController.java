@@ -2,6 +2,7 @@ package sh.ajo.linkeye.linkeye.controllers.admin;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 import sh.ajo.linkeye.linkeye.dto.LinkDTO;
 import sh.ajo.linkeye.linkeye.model.Link;
 import sh.ajo.linkeye.linkeye.model.User;
@@ -54,7 +56,7 @@ public class LinkManagementController {
     public String createLink(@Valid LinkDTO linkDTO, BindingResult bindingResult, Authentication authentication) {
 
         if (bindingResult.hasErrors()) {
-            logger.debug("Link Creation Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
+            logger.debug("Link Creation Failed - submitted form was not valid.");
             return "redirect:/links?error";
         }
 
@@ -71,7 +73,7 @@ public class LinkManagementController {
         User requester = userService.getOneByUsername(authentication.getName());
         Link link = linkService.getLinkById(linkId);
 
-        if (link.getOwner() == requester) {
+        if (linkService.existsById(linkId) && (link.getOwner() == requester)){
             model.addAttribute("link", link);
             model.addAttribute("linkDTO", new LinkDTO(link));
             model.addAttribute("clicks", clickService.findPaginated(page - 1, linksShown, link));
@@ -83,12 +85,11 @@ public class LinkManagementController {
             return "linkdetails";
         }
 
-        return "redirect:/links";
-
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/links/{linkId}")
-    public String createLink(@Valid LinkDTO linkDTO, BindingResult bindingResult, Authentication authentication, @PathVariable long linkId) {
+    public String updateLink(@Valid LinkDTO linkDTO, BindingResult bindingResult, Authentication authentication, @PathVariable long linkId) {
 
         if (bindingResult.hasErrors()) {
             return "redirect:/links/" + linkId + "?error";
@@ -97,25 +98,26 @@ public class LinkManagementController {
         User requester = userService.getOneByUsername(authentication.getName());
         Link link = linkService.getLinkById(linkId);
 
-        if (link.getOwner() == requester) {
+        if (linkService.existsById(linkId) && (link.getOwner() == requester)){
             linkService.updateLink(link, linkDTO);
-            return "redirect:/links/" + linkId;
+            return "redirect:/links";
         }
 
-        return "redirect:/links";
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/links/{linkid}/delete")
-    public String deleteLink(Authentication authentication, @PathVariable long linkid) {
+    public String deleteLink(Authentication authentication, @PathVariable long linkId) {
 
         User requester = userService.getOneByUsername(authentication.getName());
-        Link link = linkService.getLinkById(linkid);
+        Link link = linkService.getLinkById(linkId);
 
-        if (link.getOwner() == requester) {
-            linkService.deleteById(linkid);
+        if (linkService.existsById(linkId) && (link.getOwner() == requester)){
+            linkService.deleteById(linkId);
+            return "redirect:/links";
         }
 
-        return "redirect:/links";
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
 

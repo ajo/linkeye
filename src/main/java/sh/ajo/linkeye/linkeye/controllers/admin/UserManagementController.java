@@ -2,6 +2,7 @@ package sh.ajo.linkeye.linkeye.controllers.admin;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 import sh.ajo.linkeye.linkeye.dto.UserDTO;
 import sh.ajo.linkeye.linkeye.exception.DuplicateUsernameException;
 import sh.ajo.linkeye.linkeye.exception.InvalidPasswordException;
@@ -31,7 +33,6 @@ public class UserManagementController {
     public UserManagementController(UserService userService) {
         this.userService = userService;
     }
-
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/users")
@@ -83,8 +84,7 @@ public class UserManagementController {
             return "userdetails";
         }
 
-        return "redirect:/users";
-
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
@@ -102,22 +102,26 @@ public class UserManagementController {
 
             try {
                 userService.updateUser(targetUser, userDTO);
+                return "redirect:/users";
             } catch (DuplicateUsernameException e) {
                 logger.debug("User modification failed - duplicate username.");
                 return "redirect:/users?error";
             }
         }
 
-        return "redirect:/users/" + userId;
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/users/{userId}/delete")
     public String deleteUser(@PathVariable long userId) {
 
-        userService.deleteById(userId);
+        if (userService.existsById(userId)) {
+            userService.deleteById(userId);
+            return "redirect:/users";
+        }
 
-        return "redirect:/users";
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
 }

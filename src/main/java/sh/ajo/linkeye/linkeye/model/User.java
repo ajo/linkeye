@@ -93,7 +93,6 @@ public class User implements UserDetails {
     public String getAuthoritiesList() {
 
         String authoritiesString = "";
-        int i = 0;
 
         for (Authority authority : this.authorities) {
             authoritiesString = authoritiesString.concat(authority.getAuthority() + " ");
