@@ -1,6 +1,5 @@
 package sh.ajo.linkeye.linkeye.controllers.admin;
 
-import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -21,7 +20,6 @@ import sh.ajo.linkeye.linkeye.services.UserService;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import java.util.Date;
 
 @Controller
 public class LinkManagementController {
@@ -36,7 +34,6 @@ public class LinkManagementController {
         this.clickService = clickService;
         this.userService = userService;
     }
-
 
     @GetMapping("/links")
     public String links(Model model, @RequestParam(required = false, defaultValue = "1") @Min(1) int page, @RequestParam(required = false, defaultValue = "10") @Min(10) @Max(100) int linksShown, Authentication authentication) {
@@ -56,28 +53,14 @@ public class LinkManagementController {
     @PostMapping("/links")
     public String createLink(@Valid LinkDTO linkDTO, BindingResult bindingResult, Authentication authentication) {
 
-        // Validate the form
         if (bindingResult.hasErrors()) {
             logger.debug("Link Creation Failed - submitted form was not valid. Binding Result:\n " + bindingResult);
             return "redirect:/links?error";
         }
 
         User requester = userService.getOneByUsername(authentication.getName());
-
-        Link newLink = new Link();
-        newLink.setName(linkDTO.getName());
-        newLink.setDestination(linkDTO.getDestination());
-        newLink.setSourcePath(linkDTO.getPath());
-        newLink.setOwner(requester);
-        newLink.setCreated(new Date(System.currentTimeMillis()));
-        newLink.setActive(linkDTO.isActive());
-
-        try {
-            linkService.save(newLink);
-        } catch (Exception e) {
-            logger.debug("Link creation failed:\n " + e);
-            return "redirect:/links?error";
-        }
+        linkDTO.setOwner(requester);
+        linkService.createLink(linkDTO);
 
         return "redirect:/links";
     }
@@ -89,8 +72,6 @@ public class LinkManagementController {
         Link link = linkService.getLinkById(linkId);
 
         if (link.getOwner() == requester) {
-
-            // Requester owns
             model.addAttribute("link", link);
             model.addAttribute("linkDTO", new LinkDTO(link));
             model.addAttribute("clicks", clickService.findPaginated(page - 1, linksShown, link));
@@ -99,11 +80,9 @@ public class LinkManagementController {
             model.addAttribute("lastPage", (int) Math.ceil(clickService.countByLink(link) / (double) linksShown));
             model.addAttribute("page", page);
             model.addAttribute("linksShown", linksShown);
-
             return "linkdetails";
         }
 
-        // Requester does not own
         return "redirect:/links";
 
     }
@@ -111,7 +90,6 @@ public class LinkManagementController {
     @PostMapping("/links/{linkId}")
     public String createLink(@Valid LinkDTO linkDTO, BindingResult bindingResult, Authentication authentication, @PathVariable long linkId) {
 
-        // Validate the form
         if (bindingResult.hasErrors()) {
             return "redirect:/links/" + linkId + "?error";
         }
@@ -119,27 +97,12 @@ public class LinkManagementController {
         User requester = userService.getOneByUsername(authentication.getName());
         Link link = linkService.getLinkById(linkId);
 
-        // Validate authorization
         if (link.getOwner() == requester) {
-
-            link.setName(linkDTO.getName());
-            link.setDestination(linkDTO.getDestination());
-            link.setSourcePath(linkDTO.getPath());
-            link.setOwner(requester);
-            link.setActive(linkDTO.isActive());
-
-            try {
-                linkService.save(link);
-            } catch (Exception e) {
-                if (e instanceof ConstraintViolationException) {
-                    // Here you're sure you have a ConstraintViolationException, you can handle it
-                    logger.debug("User Modification Failed:\n " + e);
-                }
-                return "redirect:/links/" + linkId + "?error";
-            }
+            linkService.updateLink(link, linkDTO);
+            return "redirect:/links/" + linkId;
         }
 
-        return "redirect:/links/" + linkId;
+        return "redirect:/links";
     }
 
     @GetMapping("/links/{linkid}/delete")

@@ -1,8 +1,7 @@
 package sh.ajo.linkeye.linkeye.services;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.NoRepositoryBean;
+import sh.ajo.linkeye.linkeye.dto.LinkDTO;
 import sh.ajo.linkeye.linkeye.model.Link;
 import sh.ajo.linkeye.linkeye.model.User;
 
@@ -20,9 +19,11 @@ public interface LinkService extends JpaService<Link, Long> {
 
     Link getLinkById(Long linkId);
 
-    Page<Link> findAllByOwner(Pageable paging, User user);
-
     long countByOwner(User user);
 
     Link getTopLinkByClicksForOwner(User owner);
+
+    Link createLink(LinkDTO linkDTO);
+
+    Link updateLink(Link link, LinkDTO linkDTO);
 }

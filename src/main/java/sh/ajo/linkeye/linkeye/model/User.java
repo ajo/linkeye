@@ -3,9 +3,11 @@ package sh.ajo.linkeye.linkeye.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import sh.ajo.linkeye.linkeye.dto.UserDTO;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -31,7 +33,17 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "authority_id")
     )
-    private Collection<Authority> authorities;
+    private Collection<Authority> authorities = new ArrayList<>();
+
+    public User(UserDTO userDTO) {
+        this.username = userDTO.getUsername();
+        this.password = userDTO.getPassword();
+        this.enabled = userDTO.isEnabled();
+        this.authorities = userDTO.getAuthorities();
+    }
+
+    public User() {
+    }
 
     public Long getId() {
         return id;

@@ -1,21 +1,37 @@
 package sh.ajo.linkeye.linkeye.services.mysql;
 
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import sh.ajo.linkeye.linkeye.dto.UserDTO;
+import sh.ajo.linkeye.linkeye.exception.DuplicateUsernameException;
+import sh.ajo.linkeye.linkeye.exception.InvalidPasswordException;
+import sh.ajo.linkeye.linkeye.model.AuthorityLevel;
 import sh.ajo.linkeye.linkeye.model.User;
 import sh.ajo.linkeye.linkeye.repositories.UserRepository;
+import sh.ajo.linkeye.linkeye.services.AuthorityService;
 import sh.ajo.linkeye.linkeye.services.UserService;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final AuthorityService authorityService;
+    private final Environment environment;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, AuthorityService authorityService, Environment environment, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.authorityService = authorityService;
+        this.environment = environment;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -41,6 +57,65 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findOneByUsername(String username) {
         return userRepository.findOneByUsername(username);
+    }
+
+    @Override
+    public User updateUser(User user, UserDTO userDTO) throws DuplicateUsernameException {
+
+        // Do not change the linkeye demo admin account if running in demo mode
+        if (!(user.getUsername().equalsIgnoreCase("linkeye") && Arrays.stream(environment.getActiveProfiles()).anyMatch(Predicate.isEqual("demo")))){
+
+            // Do not update to taken usernames
+            if ((!userDTO.getUsername().equals(user.getUsername()) && userRepository.findOneByUsername(userDTO.getUsername()).isPresent())){
+                throw new DuplicateUsernameException();
+            } else {
+                user.setUsername(userDTO.getUsername());
+            }
+
+            // Do not change the password if blank
+            if (!userDTO.getPassword().isBlank()) {
+                user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            }
+
+            user.setEnabled(userDTO.isEnabled());
+
+            if (userDTO.isAdmin()){
+                userDTO.getAuthorities().add(authorityService.getByAuthority(AuthorityLevel.ADMIN.getAuthorityLevel()));
+            } else {
+                userDTO.getAuthorities().add(authorityService.getByAuthority(AuthorityLevel.USER.getAuthorityLevel()));
+            }
+
+            user.setAuthorities(new ArrayList<>(userDTO.getAuthorities()));
+
+            return userRepository.saveAndFlush(user);
+        }
+
+        // Dont touch the database at all if it's the demo admin is the target
+        return user;
+    }
+
+    @Override
+    public User createUser(UserDTO userDTO) throws DuplicateUsernameException, InvalidPasswordException {
+
+        // Do not create users with taken usernames
+        if (userRepository.findOneByUsername(userDTO.getUsername()).isPresent()){
+            throw new DuplicateUsernameException();
+        }
+
+        if (userDTO.isAdmin()){
+            userDTO.getAuthorities().add(authorityService.getByAuthority(AuthorityLevel.ADMIN.getAuthorityLevel()));
+        } else {
+            userDTO.getAuthorities().add(authorityService.getByAuthority(AuthorityLevel.USER.getAuthorityLevel()));
+        }
+
+        // Dont allow blank passwords, encrypt valid ones.
+        if (!userDTO.getPassword().isBlank()) {
+            userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        } else {
+            throw new InvalidPasswordException();
+        }
+
+        return userRepository.saveAndFlush(new User(userDTO));
     }
 
     @Override
@@ -70,12 +145,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(Long aLong) {
-        userRepository.deleteById(aLong);
+        delete(userRepository.getOneById(aLong));
     }
 
     @Override
     public void delete(User user) {
-        userRepository.delete(user);
+
+        // Do not change the linkeye demo admin account if running in demo mode
+        if (!(user.getUsername().equalsIgnoreCase("linkeye") && Arrays.stream(environment.getActiveProfiles()).anyMatch(Predicate.isEqual("demo")))){
+            userRepository.delete(user);
+        }
     }
 
     @Override

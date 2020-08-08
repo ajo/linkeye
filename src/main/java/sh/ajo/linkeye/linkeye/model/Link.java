@@ -1,7 +1,9 @@
 package sh.ajo.linkeye.linkeye.model;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import sh.ajo.linkeye.linkeye.dto.LinkDTO;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -29,10 +31,21 @@ public class Link {
     private String sourcePath;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @GeneratedValue
+    @CreationTimestamp
     private Date created;
 
     private boolean active = true;
+
+    public Link(LinkDTO linkDTO) {
+        this.owner = linkDTO.getOwner();
+        this.name = linkDTO.getName();
+        this.destination = linkDTO.getDestination();
+        this.sourcePath = linkDTO.getPath();
+        this.active = linkDTO.isActive();
+    }
+
+    public Link() {
+    }
 
     public Long getId() {
         return id;

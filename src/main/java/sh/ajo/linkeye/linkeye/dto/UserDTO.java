@@ -1,10 +1,13 @@
 package sh.ajo.linkeye.linkeye.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import sh.ajo.linkeye.linkeye.model.Authority;
 import sh.ajo.linkeye.linkeye.model.AuthorityLevel;
 import sh.ajo.linkeye.linkeye.model.User;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class UserDTO {
 
@@ -18,13 +21,14 @@ public class UserDTO {
 
     private boolean admin;
 
+    private Collection<Authority> authorities = new ArrayList<>();
+
     public UserDTO(User user) {
         this.username = user.getUsername();
         this.enabled = user.getEnabled();
         this.password = user.getPassword();
-
-        this.admin = user.getAuthoritiesList().contains(AuthorityLevel.ADMIN.getAuthorityLevel());
-
+        this.authorities = (Collection<Authority>) user.getAuthorities();
+        this.admin = authorities.stream().anyMatch(authority -> authority.getAuthority().equals(AuthorityLevel.ADMIN.getAuthorityLevel()));
     }
 
     public UserDTO() {
@@ -54,12 +58,20 @@ public class UserDTO {
         this.enabled = enabled;
     }
 
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
+
     public boolean isAdmin() {
         return admin;
     }
 
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
+    public Collection<Authority> getAuthorities() {
+        return authorities;
+    }
+
+    public void setAuthorities(Collection<Authority> authorities) {
+        this.authorities = authorities;
     }
 }
 

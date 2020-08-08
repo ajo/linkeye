@@ -2,6 +2,7 @@ package sh.ajo.linkeye.linkeye.dto;
 
 import org.hibernate.validator.constraints.URL;
 import sh.ajo.linkeye.linkeye.model.Link;
+import sh.ajo.linkeye.linkeye.model.User;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -18,10 +19,13 @@ public class LinkDTO {
 
     private boolean active;
 
+    private User owner;
+
     public LinkDTO() {
     }
 
     public LinkDTO(Link link) {
+        this.setOwner(link.getOwner());
         this.setName(link.getName());
         this.setPath(link.getSourcePath());
         this.setDestination(link.getDestination());
@@ -58,5 +62,13 @@ public class LinkDTO {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 }

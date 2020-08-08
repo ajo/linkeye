@@ -1,25 +1,30 @@
 package sh.ajo.linkeye.linkeye.services.mysql;
 
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import sh.ajo.linkeye.linkeye.dto.LinkDTO;
 import sh.ajo.linkeye.linkeye.model.Link;
 import sh.ajo.linkeye.linkeye.model.User;
 import sh.ajo.linkeye.linkeye.repositories.LinkRepository;
 import sh.ajo.linkeye.linkeye.repositories.UserRepository;
 import sh.ajo.linkeye.linkeye.services.LinkService;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 @Service
 public class LinkServiceImpl implements LinkService {
 
+    private final Environment environment;
     private final LinkRepository linkRepository;
-
     private final UserRepository userRepository;
 
-    public LinkServiceImpl(LinkRepository linkRepository, UserRepository userRepository) {
+    public LinkServiceImpl(Environment environment, LinkRepository linkRepository, UserRepository userRepository) {
+        this.environment = environment;
         this.linkRepository = linkRepository;
         this.userRepository = userRepository;
     }
@@ -51,11 +56,6 @@ public class LinkServiceImpl implements LinkService {
     }
 
     @Override
-    public Page<Link> findAllByOwner(Pageable paging, User user) {
-        return linkRepository.findAllByOwner(paging, user);
-    }
-
-    @Override
     public long countByOwner(User user) {
         return linkRepository.countByOwner(user);
     }
@@ -63,6 +63,34 @@ public class LinkServiceImpl implements LinkService {
     @Override
     public Link getTopLinkByClicksForOwner(User owner) {
         return linkRepository.getTopLinkByClicksForOwner(owner);
+    }
+
+    @Override
+    public Link createLink(LinkDTO linkDTO) {
+
+        // Force all links to a "safe" location in demo mode
+        if (Arrays.stream(environment.getActiveProfiles()).anyMatch(Predicate.isEqual("demo"))){
+            linkDTO.setDestination("https://github.com/ajo/linkeye");
+        }
+
+       return linkRepository.save(new Link(linkDTO));
+    }
+
+    @Override
+    public Link updateLink(Link link, LinkDTO linkDTO) {
+
+        link.setActive(linkDTO.isActive());
+        link.setName(linkDTO.getName());
+        link.setSourcePath(linkDTO.getPath());
+
+        // Force all links to a "safe" location in demo mode
+        if (Arrays.stream(environment.getActiveProfiles()).anyMatch(Predicate.isEqual("demo"))){
+            linkDTO.setDestination("https://github.com/ajo/linkeye");
+        } else {
+            link.setDestination(linkDTO.getDestination());
+        }
+
+        return linkRepository.save(link);
     }
 
     @Override
