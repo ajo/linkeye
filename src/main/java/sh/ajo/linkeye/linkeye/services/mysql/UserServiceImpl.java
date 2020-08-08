@@ -4,9 +4,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import sh.ajo.linkeye.linkeye.dto.AccountUpdateDTO;
 import sh.ajo.linkeye.linkeye.dto.UserDTO;
 import sh.ajo.linkeye.linkeye.exception.DuplicateUsernameException;
 import sh.ajo.linkeye.linkeye.exception.InvalidPasswordException;
+import sh.ajo.linkeye.linkeye.exception.MismatchedPasswordException;
 import sh.ajo.linkeye.linkeye.model.AuthorityLevel;
 import sh.ajo.linkeye.linkeye.model.User;
 import sh.ajo.linkeye.linkeye.repositories.UserRepository;
@@ -116,6 +118,29 @@ public class UserServiceImpl implements UserService {
         }
 
         return userRepository.saveAndFlush(new User(userDTO));
+    }
+
+    @Override
+    // This method is intended to be used in self-serve by users. updateUser should be sued by admin/system.
+    public void changePassword(User user, AccountUpdateDTO accountUpdateDTO) throws InvalidPasswordException, MismatchedPasswordException {
+
+
+        // Check if provided current password does not match the actual current password
+        if (!passwordEncoder.matches(accountUpdateDTO.getCurrentPassword(), user.getPassword())){
+            throw new InvalidPasswordException();
+        }
+        // Check if either password is blank
+        else if (accountUpdateDTO.getConfirmNewPassword().isBlank() || accountUpdateDTO.getNewPassword().isBlank()) {
+            throw new InvalidPasswordException();
+        }
+        // Check if provided passwords match
+        else if (!accountUpdateDTO.getNewPassword().equals(accountUpdateDTO.getConfirmNewPassword())){
+            throw new MismatchedPasswordException();
+        } else {
+            user.setPassword(passwordEncoder.encode(accountUpdateDTO.getNewPassword()));
+            userRepository.saveAndFlush(user);
+        }
+
     }
 
     @Override

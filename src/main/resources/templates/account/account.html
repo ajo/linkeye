@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <title>My Account - LinkEye</title>
+    <th:block th:replace="fragments/general :: css"></th:block>
+</head>
+<body id="page-top">
+<div id="wrapper">
+    <div th:replace="fragments/navbar :: navbar-vertical"></div>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <div th:replace="fragments/navbar :: navbar-horizontal"></div>
+            <div class="container-fluid">
+                <div th:if="${#httpServletRequest.getParameter('mismatchPassword') != null}">
+                    <div class="alert alert-danger">
+                        Provided passwords do not match.
+                    </div>
+                </div>
+                <div th:if="${#httpServletRequest.getParameter('badPassword') != null}">
+                    <div class="alert alert-danger">
+                        Cannot use a blank or invalid password.
+                    </div>
+                </div>
+                <div th:if="${#httpServletRequest.getParameter('success')}">
+                    <div class="alert alert-success">
+                        Account updated.
+                    </div>
+                </div>
+                <div role="tablist" id="accordion-1">
+                    <div class="card">
+                        <div class="card-header" role="tab">
+                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="true" aria-controls="accordion-1 .item-1" href="#accordion-1 .item-1">My Account - Overview</a></h5>
+                        </div>
+                        <div class="collapse show item-1" role="tabpanel" data-parent="#accordion-1">
+                            <div class="card-body">
+                                <ul>
+                                    <li th:text="'User ID: ' + ${user.getId()}">Id:</li>
+                                    <li th:text="'Username: ' + ${user.getUsername()}">Username:</li>
+                                    <li th:text="'Roles: ' + ${user.getAuthoritiesList()}">Authorities:</li>
+                                    <li th:text="'Enabled: ' + ${user.getEnabled()}">Enabled:</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" role="tab">
+                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-2" href="#accordion-1 .item-2">Change Password</a></h5>
+                        </div>
+                        <div class="collapse item-2" role="tabpanel" data-parent="#accordion-1">
+                            <div class="card-body">
+                                <form method="post" th:action="@{/account}" th:object="${accountUpdateDto}">
+                                    <div class="col">
+                                        <div class="form-row">
+                                            <div class="col-3"><label class="col-form-label">Current Password</label></div>
+                                            <div class="col-5"><input th:field="*{currentPassword}" class="form-control" type="password" /></div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="col-3"><label class="col-form-label">New Password</label></div>
+                                            <div class="col-5"><input th:field="*{newPassword}" class="form-control" type="password" /></div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="col-3"><label class="col-form-label">Confirm New Password</label></div>
+                                            <div class="col-5"><input th:field="*{confirmNewPassword}"  class="form-control" type="password" /></div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="col-3"><button class="btn btn-primary" type="submit">Update Password</button></div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="fragments/footer :: footer"></div>
+    </div>
+    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+</div>
+<th:block th:replace="fragments/general :: js"></th:block>
+</body>
+</html>
